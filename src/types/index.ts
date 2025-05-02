@@ -27,8 +27,8 @@ export type NotificationType = {
 };
 
 export interface CategoryInfo {
-  id: DocumentCategory;
+  id: DocumentCategory | 'all';
   label: string;
-  icon: string;
+  icon: React.ComponentType<any> | string;
   color: string;
 }

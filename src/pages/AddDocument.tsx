@@ -18,6 +18,9 @@ export default function AddDocument() {
 
       <main className="container mx-auto p-4 max-w-lg">
         <DocumentForm />
+        <div className="text-center text-sm text-muted-foreground italic mt-8">
+          <p className="font-medium">K.MyHicham</p>
+        </div>
       </main>
 
       <BottomNav />

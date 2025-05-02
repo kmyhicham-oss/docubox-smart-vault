@@ -1,4 +1,3 @@
-
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { mockDocuments } from "@/utils/mock-data";
@@ -169,6 +168,10 @@ export default function DocumentDetail() {
               </AlertDialogContent>
             </AlertDialog>
           </div>
+        </div>
+
+        <div className="text-center text-sm text-muted-foreground italic pt-6 border-t border-gray-100">
+          <p className="font-medium">K.MyHicham</p>
         </div>
       </main>
 
