@@ -20,56 +20,15 @@ import { z } from "zod";
 import { FileUploader } from "./FileUploader";
 import { CategorySelector } from "./CategorySelector";
 import { ExpirationDatePicker } from "./ExpirationDatePicker";
-
-const formSchema = z.object({
-  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  category: z.enum(["identity", "health", "vehicle", "contract", "other"] as const),
-  expirationDate: z.date().optional(),
-  description: z.string().optional(),
-  file: z.any().optional(),
-});
+import { DocumentFormValues, useDocumentForm } from "./useDocumentForm";
 
 export function DocumentForm() {
   const [file, setFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      category: "identity",
-      description: "",
-    },
-  });
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (!file) {
-      toast({
-        title: "Fichier requis",
-        description: "Veuillez sélectionner un fichier",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Document ajouté",
-        description: "Votre document a été ajouté avec succès",
-      });
-      navigate("/documents");
-    }, 1500);
-  };
+  const { form, isSubmitting, handleSubmit } = useDocumentForm();
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(values => handleSubmit(values, file))} className="space-y-6">
         <FileUploader 
           file={file} 
           onFileChange={setFile}
