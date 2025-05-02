@@ -1,4 +1,3 @@
-
 import { ExpiringDocuments } from "@/components/dashboard/ExpiringDocuments";
 import { RecentDocuments } from "@/components/dashboard/RecentDocuments";
 import { StatsByCategory } from "@/components/dashboard/StatsByCategory";
@@ -7,6 +6,7 @@ import { mockDocuments } from "@/utils/mock-data";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/shared/Logo";
 
 export default function Index() {
   return (
@@ -60,6 +60,11 @@ export default function Index() {
 
         {/* Stats by category */}
         <StatsByCategory />
+        
+        {/* Signature logo at the bottom */}
+        <div className="pt-4 mt-6 border-t border-gray-100">
+          <Logo />
+        </div>
       </main>
 
       <BottomNav />

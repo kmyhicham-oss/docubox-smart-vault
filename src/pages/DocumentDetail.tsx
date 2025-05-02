@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { Logo } from "@/components/shared/Logo";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -170,8 +171,8 @@ export default function DocumentDetail() {
           </div>
         </div>
 
-        <div className="text-center text-sm text-muted-foreground italic pt-6 border-t border-gray-100">
-          <p className="font-medium">K.MyHicham</p>
+        <div className="text-center pt-6 border-t border-gray-100">
+          <Logo />
         </div>
       </main>
 

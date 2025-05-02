@@ -3,6 +3,7 @@ import { DocumentForm } from "@/components/documents/DocumentForm";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/shared/Logo";
 
 export default function AddDocument() {
   return (
@@ -18,8 +19,8 @@ export default function AddDocument() {
 
       <main className="container mx-auto p-4 max-w-lg">
         <DocumentForm />
-        <div className="text-center text-sm text-muted-foreground italic mt-8">
-          <p className="font-medium">K.MyHicham</p>
+        <div className="text-center mt-8">
+          <Logo />
         </div>
       </main>
 
