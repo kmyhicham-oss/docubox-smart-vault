@@ -11,6 +11,7 @@ import DocumentDetail from "./pages/DocumentDetail";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -20,23 +21,25 @@ const isAuthenticated = true;
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-          
-          {/* Protected Routes */}
-          <Route path="/" element={isAuthenticated ? <Index /> : <Navigate to="/login" />} />
-          <Route path="/documents" element={isAuthenticated ? <Documents /> : <Navigate to="/login" />} />
-          <Route path="/documents/:id" element={isAuthenticated ? <DocumentDetail /> : <Navigate to="/login" />} />
-          <Route path="/add-document" element={isAuthenticated ? <AddDocument /> : <Navigate to="/login" />} />
-          <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <LanguageProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
+            
+            {/* Protected Routes */}
+            <Route path="/" element={isAuthenticated ? <Index /> : <Navigate to="/login" />} />
+            <Route path="/documents" element={isAuthenticated ? <Documents /> : <Navigate to="/login" />} />
+            <Route path="/documents/:id" element={isAuthenticated ? <DocumentDetail /> : <Navigate to="/login" />} />
+            <Route path="/add-document" element={isAuthenticated ? <AddDocument /> : <Navigate to="/login" />} />
+            <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

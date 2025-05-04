@@ -11,17 +11,20 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
-import { BellRing, Fingerprint, Lock, LogOut, User2 } from "lucide-react";
+import { BellRing, Fingerprint, Globe, Lock, LogOut, User2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/settings/LanguageSelector";
 
 export default function Settings() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleLogout = () => {
     toast({
-      title: "Déconnexion réussie",
-      description: "À bientôt !"
+      title: t("settings.logout.success"),
+      description: t("settings.logout.message")
     });
     navigate("/login");
   };
@@ -30,7 +33,7 @@ export default function Settings() {
     <div className="pb-20">
       <header className="bg-background border-b px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight">Paramètres</h1>
+          <h1 className="text-xl font-bold tracking-tight">{t("settings.title")}</h1>
         </div>
       </header>
 
@@ -39,33 +42,33 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <User2 className="mr-2" size={18} />
-              Profil
+              {t("settings.profile")}
             </CardTitle>
             <CardDescription>
-              Gérer vos informations personnelles
+              {t("settings.profile.desc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium">Email</div>
+                <div className="font-medium">{t("settings.email")}</div>
                 <div className="text-sm text-muted-foreground">
                   user@example.com
                 </div>
               </div>
               <Button variant="outline" size="sm">
-                Modifier
+                {t("settings.edit")}
               </Button>
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-medium">Mot de passe</div>
+                <div className="font-medium">{t("settings.password")}</div>
                 <div className="text-sm text-muted-foreground">
-                  Dernière modification il y a 2 mois
+                  {t("settings.password.lastModified")}
                 </div>
               </div>
               <Button variant="outline" size="sm">
-                Modifier
+                {t("settings.edit")}
               </Button>
             </div>
           </CardContent>
@@ -75,31 +78,31 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <BellRing className="mr-2" size={18} />
-              Notifications
+              {t("settings.notifications")}
             </CardTitle>
             <CardDescription>
-              Gérer vos préférences de notification
+              {t("settings.notifications.desc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="font-medium">Documents expirants</div>
+                <div className="font-medium">{t("settings.notifications.expiring")}</div>
                 <div className="text-sm text-muted-foreground">
-                  Notifications pour documents qui expirent
+                  {t("settings.notifications.expiring.desc")}
                 </div>
               </div>
               <Switch defaultChecked />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="font-medium">Timing des alertes</div>
+                <div className="font-medium">{t("settings.notifications.timing")}</div>
                 <div className="text-sm text-muted-foreground">
-                  30 jours, 7 jours et jour d'expiration
+                  {t("settings.notifications.timing.desc")}
                 </div>
               </div>
               <Button variant="outline" size="sm">
-                Configurer
+                {t("settings.notifications.configure")}
               </Button>
             </div>
           </CardContent>
@@ -109,29 +112,29 @@ export default function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Lock className="mr-2" size={18} />
-              Sécurité
+              {t("settings.security")}
             </CardTitle>
             <CardDescription>
-              Paramètres de sécurité de votre compte
+              {t("settings.security.desc")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="font-medium">Verrouillage par code PIN</div>
+                <div className="font-medium">{t("settings.security.pin")}</div>
                 <div className="text-sm text-muted-foreground">
-                  Protéger l'accès à l'application
+                  {t("settings.security.pin.desc")}
                 </div>
               </div>
               <Switch />
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <div className="font-medium">Authentification biométrique</div>
+                <div className="font-medium">{t("settings.security.biometric")}</div>
                 <div className="text-sm text-muted-foreground">
                   <div className="flex items-center">
                     <Fingerprint size={14} className="mr-1" />
-                    Déverrouillage par empreinte digitale
+                    {t("settings.security.biometric.desc")}
                   </div>
                 </div>
               </div>
@@ -142,7 +145,27 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-destructive">Déconnexion</CardTitle>
+            <CardTitle className="flex items-center">
+              <Globe className="mr-2" size={18} />
+              {t("settings.language")}
+            </CardTitle>
+            <CardDescription>
+              {t("settings.language.desc")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="font-medium">{t("settings.language")}</div>
+              </div>
+              <LanguageSelector />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-destructive">{t("settings.logout")}</CardTitle>
           </CardHeader>
           <CardFooter>
             <Button 
@@ -151,7 +174,7 @@ export default function Settings() {
               onClick={handleLogout}
             >
               <LogOut className="mr-2" size={16} />
-              Se déconnecter
+              {t("app.logout")}
             </Button>
           </CardFooter>
         </Card>

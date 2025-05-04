@@ -2,30 +2,32 @@
 import { cn } from "@/lib/utils";
 import { FilePlus, FilesIcon, Home, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function BottomNav() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useLanguage();
 
   const navItems = [
     {
-      label: "Accueil",
+      label: t("nav.home"),
       href: "/",
       icon: Home,
     },
     {
-      label: "Documents",
+      label: t("nav.documents"),
       href: "/documents",
       icon: FilesIcon,
     },
     {
-      label: "Ajouter",
+      label: t("nav.add"),
       href: "/add-document",
       icon: FilePlus,
       isMain: true,
     },
     {
-      label: "Paramètres",
+      label: t("nav.settings"),
       href: "/settings",
       icon: Settings,
     },
