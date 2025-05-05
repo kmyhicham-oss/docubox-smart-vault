@@ -75,15 +75,6 @@ const LoginForm = () => {
         <LogIn className="mr-2 h-4 w-4" />
         {isLoading ? t("auth.login.processing") : t("auth.login.action")}
       </Button>
-      
-      <div className="text-center text-sm mt-4">
-        <p>
-          {t("auth.noAccount")}{" "}
-          <a href="#signup" className="text-primary hover:underline font-medium">
-            {t("auth.register.action")}
-          </a>
-        </p>
-      </div>
     </form>
   );
 };

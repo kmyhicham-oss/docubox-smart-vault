@@ -114,15 +114,6 @@ const SignupForm = () => {
         <UserPlus className="mr-2 h-4 w-4" />
         {isLoading ? t("auth.register.processing") : t("auth.register.action")}
       </Button>
-      
-      <div className="text-center text-sm mt-4">
-        <p>
-          {t("auth.haveAccount")}{" "}
-          <a href="#login" className="text-primary hover:underline font-medium">
-            {t("auth.login.action")}
-          </a>
-        </p>
-      </div>
     </form>
   );
 };

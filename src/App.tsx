@@ -9,7 +9,8 @@ import Documents from "./pages/Documents";
 import AddDocument from "./pages/AddDocument";
 import DocumentDetail from "./pages/DocumentDetail";
 import Settings from "./pages/Settings";
-import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -26,7 +27,7 @@ const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
     return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
   }
   
-  return isAuthenticated ? element : <Navigate to="/login" />;
+  return isAuthenticated ? element : <Navigate to="/signin" />;
 };
 
 // Routes configuration component, needs to be inside AuthProvider
@@ -40,7 +41,9 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
+      <Route path="/signin" element={isAuthenticated ? <Navigate to="/" /> : <SignIn />} />
+      <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <SignUp />} />
+      <Route path="/login" element={<Navigate to="/signin" />} /> {/* Redirect old route to new */}
       
       {/* Protected Routes */}
       <Route path="/" element={<ProtectedRoute element={<Index />} />} />
