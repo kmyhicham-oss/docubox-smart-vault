@@ -10,24 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/components/ui/use-toast";
 import { BellRing, Fingerprint, Globe, Lock, LogOut, User2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Settings() {
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const { t } = useLanguage();
-
-  const handleLogout = () => {
-    toast({
-      title: t("settings.logout.success"),
-      description: t("settings.logout.message")
-    });
-    navigate("/login");
-  };
+  const { logout, user } = useAuth();
 
   return (
     <div className="pb-20">
@@ -53,7 +44,7 @@ export default function Settings() {
               <div>
                 <div className="font-medium">{t("settings.email")}</div>
                 <div className="text-sm text-muted-foreground">
-                  user@example.com
+                  {user?.email || "user@example.com"}
                 </div>
               </div>
               <Button variant="outline" size="sm">
@@ -171,7 +162,7 @@ export default function Settings() {
             <Button 
               variant="destructive" 
               className="w-full"
-              onClick={handleLogout}
+              onClick={logout}
             >
               <LogOut className="mr-2" size={16} />
               {t("app.logout")}

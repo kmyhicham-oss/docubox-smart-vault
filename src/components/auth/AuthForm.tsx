@@ -4,95 +4,159 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/settings/LanguageSelector";
+import { Eye, EyeOff } from "lucide-react";
 
 const AuthForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const { login, register, isLoading } = useAuth();
+  const { t } = useLanguage();
 
-  const handleAuth = (e: React.FormEvent<HTMLFormElement>, type: "login" | "register") => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Mock authentication
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      if (type === "login") {
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur DocuBox"
-        });
-      } else {
-        toast({
-          title: "Compte créé avec succès",
-          description: "Votre compte a été créé"
-        });
-      }
-      
-      navigate("/");
-    }, 1000);
+    await login(loginEmail, loginPassword);
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await register(registerEmail, registerPassword, confirmPassword);
   };
 
   return (
     <Card className="w-[350px]">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">DocuBox</CardTitle>
-        <CardDescription>Gérez intelligemment vos documents</CardDescription>
+        <CardDescription>{t("app.tagline")}</CardDescription>
+        <div className="absolute right-4 top-4">
+          <LanguageSelector />
+        </div>
       </CardHeader>
       <Tabs defaultValue="login" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="login">Connexion</TabsTrigger>
-          <TabsTrigger value="register">Inscription</TabsTrigger>
+          <TabsTrigger value="login">{t("auth.login.title")}</TabsTrigger>
+          <TabsTrigger value="register">{t("auth.register.title")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="login">
-          <form onSubmit={(e) => handleAuth(e, "login")}>
+          <form onSubmit={handleLogin}>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="votre@email.com" required />
+                <Label htmlFor="email">{t("auth.email")}</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder={t("auth.emailPlaceholder")} 
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mot de passe</Label>
+                  <Label htmlFor="password">{t("auth.password")}</Label>
                   <a href="#" className="text-xs text-primary hover:underline">
-                    Mot de passe oublié?
+                    {t("auth.forgotPassword")}
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <div className="relative">
+                  <Input 
+                    id="password" 
+                    type={showLoginPassword ? "text" : "password"} 
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    required 
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-0 top-0 h-full px-3"
+                  >
+                    {showLoginPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Connexion en cours..." : "Se connecter"}
+                {isLoading ? t("auth.login.processing") : t("auth.login.action")}
               </Button>
             </CardFooter>
           </form>
         </TabsContent>
 
         <TabsContent value="register">
-          <form onSubmit={(e) => handleAuth(e, "register")}>
+          <form onSubmit={handleRegister}>
             <CardContent className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="register-email">Email</Label>
-                <Input id="register-email" type="email" placeholder="votre@email.com" required />
+                <Label htmlFor="register-email">{t("auth.email")}</Label>
+                <Input 
+                  id="register-email" 
+                  type="email" 
+                  placeholder={t("auth.emailPlaceholder")} 
+                  value={registerEmail}
+                  onChange={(e) => setRegisterEmail(e.target.value)}
+                  required 
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="register-password">Mot de passe</Label>
-                <Input id="register-password" type="password" required />
+                <Label htmlFor="register-password">{t("auth.password")}</Label>
+                <div className="relative">
+                  <Input 
+                    id="register-password" 
+                    type={showRegisterPassword ? "text" : "password"} 
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    required 
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    className="absolute right-0 top-0 h-full px-3"
+                  >
+                    {showRegisterPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmation du mot de passe</Label>
-                <Input id="confirm-password" type="password" required />
+                <Label htmlFor="confirm-password">{t("auth.confirmPassword")}</Label>
+                <div className="relative">
+                  <Input 
+                    id="confirm-password" 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required 
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-0 top-0 h-full px-3"
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </Button>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Création en cours..." : "Créer un compte"}
+                {isLoading ? t("auth.register.processing") : t("auth.register.action")}
               </Button>
             </CardFooter>
           </form>

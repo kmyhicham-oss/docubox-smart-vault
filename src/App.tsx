@@ -12,34 +12,61 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
-// Mock authentication check - would be replaced with real authentication
-const isAuthenticated = true; 
+// Protected route component that checks authentication
+const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // While checking authentication status, we can show a loading state
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
+  }
+  
+  return isAuthenticated ? element : <Navigate to="/login" />;
+};
+
+// Routes configuration component, needs to be inside AuthProvider
+const AppRoutes = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  // If still loading auth state, return nothing to prevent flash
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">Chargement...</div>;
+  }
+  
+  return (
+    <Routes>
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
+      
+      {/* Protected Routes */}
+      <Route path="/" element={<ProtectedRoute element={<Index />} />} />
+      <Route path="/documents" element={<ProtectedRoute element={<Documents />} />} />
+      <Route path="/documents/:id" element={<ProtectedRoute element={<DocumentDetail />} />} />
+      <Route path="/add-document" element={<ProtectedRoute element={<AddDocument />} />} />
+      <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
+      
+      {/* Catch-all route */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <LanguageProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <Login />} />
-            
-            {/* Protected Routes */}
-            <Route path="/" element={isAuthenticated ? <Index /> : <Navigate to="/login" />} />
-            <Route path="/documents" element={isAuthenticated ? <Documents /> : <Navigate to="/login" />} />
-            <Route path="/documents/:id" element={isAuthenticated ? <DocumentDetail /> : <Navigate to="/login" />} />
-            <Route path="/add-document" element={isAuthenticated ? <AddDocument /> : <Navigate to="/login" />} />
-            <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </LanguageProvider>
+      <BrowserRouter>
+        <LanguageProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+          </AuthProvider>
+        </LanguageProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
