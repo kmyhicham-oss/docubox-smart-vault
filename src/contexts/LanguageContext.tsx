@@ -17,6 +17,7 @@ const translations: Record<Language, Record<string, string>> = {
   fr: {
     // Général
     "app.name": "DocuBox",
+    "app.tagline": "Gérez vos documents importants",
     "app.logout": "Se déconnecter",
     
     // Navigation
@@ -24,6 +25,52 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.documents": "Documents",
     "nav.add": "Ajouter",
     "nav.settings": "Paramètres",
+    
+    // Authentication
+    "auth.email": "Email",
+    "auth.emailPlaceholder": "Entrez votre email...",
+    "auth.password": "Mot de passe",
+    "auth.passwordPlaceholder": "Entrez votre mot de passe...",
+    "auth.confirmPassword": "Confirmer le mot de passe",
+    "auth.confirmPasswordPlaceholder": "Confirmez votre mot de passe...",
+    "auth.fullName": "Nom complet",
+    "auth.fullNamePlaceholder": "Entrez votre nom complet...",
+    "auth.forgotPassword": "Mot de passe oublié ?",
+    "auth.noAccount": "Vous n'avez pas de compte ?",
+    "auth.haveAccount": "Vous avez déjà un compte ?",
+    
+    "auth.login.title": "Connexion",
+    "auth.login.welcomeBack": "Bon retour !",
+    "auth.login.accountAccess": "Accédez à votre compte",
+    "auth.login.action": "CONNEXION",
+    "auth.login.processing": "Connexion en cours...",
+    "auth.login.success": "Connexion réussie",
+    "auth.login.welcomeMessage": "Bienvenue sur DocuBox",
+    
+    "auth.register.title": "Inscription",
+    "auth.register.action": "S'INSCRIRE",
+    "auth.register.tagline": "Numérisez, stockez et recevez des rappels pour vos documents",
+    "auth.register.secure": "Restez organisé. Restez en sécurité.",
+    "auth.register.join": "Rejoignez-nous — votre vie numérique, simplifiée",
+    "auth.register.processing": "Inscription en cours...",
+    "auth.register.success": "Inscription réussie",
+    "auth.register.accountCreated": "Votre compte a été créé avec succès",
+    
+    "auth.logout.success": "Déconnexion réussie",
+    "auth.logout.message": "À bientôt !",
+    
+    "auth.errors.loginFailed": "Échec de la connexion",
+    "auth.errors.registrationFailed": "Échec de l'inscription",
+    "auth.errors.passwordLength": "Le mot de passe doit comporter au moins 6 caractères",
+    "auth.errors.passwordMismatch": "Les mots de passe ne correspondent pas",
+    "auth.errors.generic": "Une erreur est survenue. Veuillez réessayer.",
+    
+    // Catégories
+    "categories.health": "Santé",
+    "categories.identity": "Identité",
+    "categories.vehicle": "Véhicule",
+    "categories.contract": "Contrats",
+    "categories.other": "Autre",
     
     // Paramètres
     "settings.title": "Paramètres",
@@ -62,6 +109,7 @@ const translations: Record<Language, Record<string, string>> = {
   en: {
     // General
     "app.name": "DocuBox",
+    "app.tagline": "Manage your important documents",
     "app.logout": "Log out",
     
     // Navigation
@@ -69,6 +117,52 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.documents": "Documents",
     "nav.add": "Add",
     "nav.settings": "Settings",
+    
+    // Authentication
+    "auth.email": "Email",
+    "auth.emailPlaceholder": "Enter your email...",
+    "auth.password": "Password",
+    "auth.passwordPlaceholder": "Enter your password...",
+    "auth.confirmPassword": "Confirm Password",
+    "auth.confirmPasswordPlaceholder": "Confirm your password...",
+    "auth.fullName": "Full Name",
+    "auth.fullNamePlaceholder": "Enter your full name...",
+    "auth.forgotPassword": "Forgot password?",
+    "auth.noAccount": "Don't have an account?",
+    "auth.haveAccount": "Already have an account?",
+    
+    "auth.login.title": "Log In",
+    "auth.login.welcomeBack": "Welcome Back!",
+    "auth.login.accountAccess": "Log into your account",
+    "auth.login.action": "LOGIN",
+    "auth.login.processing": "Logging in...",
+    "auth.login.success": "Login successful",
+    "auth.login.welcomeMessage": "Welcome to DocuBox",
+    
+    "auth.register.title": "Sign Up",
+    "auth.register.action": "SIGNUP",
+    "auth.register.tagline": "Scan, store & get reminders for your documents",
+    "auth.register.secure": "Stay organized. Stay secure.",
+    "auth.register.join": "Join now — your digital life, simplified",
+    "auth.register.processing": "Signing up...",
+    "auth.register.success": "Registration successful",
+    "auth.register.accountCreated": "Your account has been created successfully",
+    
+    "auth.logout.success": "Successfully logged out",
+    "auth.logout.message": "See you soon!",
+    
+    "auth.errors.loginFailed": "Login failed",
+    "auth.errors.registrationFailed": "Registration failed",
+    "auth.errors.passwordLength": "Password must be at least 6 characters long",
+    "auth.errors.passwordMismatch": "Passwords do not match",
+    "auth.errors.generic": "An error occurred. Please try again.",
+    
+    // Categories
+    "categories.health": "Health",
+    "categories.identity": "Identity",
+    "categories.vehicle": "Vehicle",
+    "categories.contract": "Contracts",
+    "categories.other": "Other",
     
     // Settings
     "settings.title": "Settings",
@@ -107,6 +201,7 @@ const translations: Record<Language, Record<string, string>> = {
   ar: {
     // General
     "app.name": "دوكوبوكس",
+    "app.tagline": "إدارة مستنداتك المهمة",
     "app.logout": "تسجيل الخروج",
     
     // Navigation
@@ -114,6 +209,52 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.documents": "المستندات",
     "nav.add": "إضافة",
     "nav.settings": "الإعدادات",
+    
+    // Authentication
+    "auth.email": "البريد الإلكتروني",
+    "auth.emailPlaceholder": "أدخل بريدك الإلكتروني...",
+    "auth.password": "كلمة المرور",
+    "auth.passwordPlaceholder": "أدخل كلمة المرور...",
+    "auth.confirmPassword": "تأكيد كلمة المرور",
+    "auth.confirmPasswordPlaceholder": "أكد كلمة المرور...",
+    "auth.fullName": "الاسم الكامل",
+    "auth.fullNamePlaceholder": "أدخل اسمك الكامل...",
+    "auth.forgotPassword": "نسيت كلمة المرور؟",
+    "auth.noAccount": "ليس لديك حساب؟",
+    "auth.haveAccount": "لديك حساب بالفعل؟",
+    
+    "auth.login.title": "تسجيل الدخول",
+    "auth.login.welcomeBack": "مرحبًا بعودتك!",
+    "auth.login.accountAccess": "تسجيل الدخول إلى حسابك",
+    "auth.login.action": "تسجيل الدخول",
+    "auth.login.processing": "جاري تسجيل الدخول...",
+    "auth.login.success": "تم تسجيل الدخول بنجاح",
+    "auth.login.welcomeMessage": "مرحبًا بك في دوكوبوكس",
+    
+    "auth.register.title": "إنشاء حساب",
+    "auth.register.action": "التسجيل",
+    "auth.register.tagline": "مسح وتخزين والحصول على تذكيرات لمستنداتك",
+    "auth.register.secure": "ابق منظمًا. ابق آمنًا.",
+    "auth.register.join": "انضم الآن — حياتك الرقمية، بسيطة",
+    "auth.register.processing": "جاري التسجيل...",
+    "auth.register.success": "تم التسجيل بنجاح",
+    "auth.register.accountCreated": "تم إنشاء حسابك بنجاح",
+    
+    "auth.logout.success": "تم تسجيل الخروج بنجاح",
+    "auth.logout.message": "إلى اللقاء!",
+    
+    "auth.errors.loginFailed": "فشل تسجيل الدخول",
+    "auth.errors.registrationFailed": "فشل التسجيل",
+    "auth.errors.passwordLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "auth.errors.passwordMismatch": "كلمات المرور غير متطابقة",
+    "auth.errors.generic": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    
+    // Categories
+    "categories.health": "الصحة",
+    "categories.identity": "الهوية",
+    "categories.vehicle": "المركبات",
+    "categories.contract": "العقود",
+    "categories.other": "أخرى",
     
     // Settings
     "settings.title": "الإعدادات",
