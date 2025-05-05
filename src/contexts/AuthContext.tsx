@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, confirmPassword: string) => Promise<void>;
-  logout: () => void;
+  logout: (redirectTo?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -115,14 +114,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
+  const logout = (redirectTo: string = "/signin") => {
     setUser(null);
     localStorage.removeItem("docubox-user");
     toast({
       title: t("auth.logout.success"),
       description: t("auth.logout.message")
     });
-    navigate("/login");
+    navigate(redirectTo);
   };
 
   return (

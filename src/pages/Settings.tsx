@@ -1,4 +1,3 @@
-
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,15 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { BellRing, Fingerprint, Globe, Lock, LogOut, User2 } from "lucide-react";
+import { BellRing, Fingerprint, Globe, Lock, User2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
 import { useAuth } from "@/contexts/AuthContext";
+import SignOutButton from "@/components/auth/SignOutButton";
 
 export default function Settings() {
   const { t } = useLanguage();
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="pb-20">
@@ -159,14 +159,7 @@ export default function Settings() {
             <CardTitle className="text-destructive">{t("settings.logout")}</CardTitle>
           </CardHeader>
           <CardFooter>
-            <Button 
-              variant="destructive" 
-              className="w-full"
-              onClick={logout}
-            >
-              <LogOut className="mr-2" size={16} />
-              {t("app.logout")}
-            </Button>
+            <SignOutButton className="w-full" />
           </CardFooter>
         </Card>
       </main>
