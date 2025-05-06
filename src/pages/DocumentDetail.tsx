@@ -22,12 +22,22 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Logo } from "@/components/shared/Logo";
+import { Progress } from "@/components/ui/progress";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadedFiles, setDownloadedFiles] = useState<string[]>(() => {
+    // Get downloaded files from localStorage if available
+    const saved = localStorage.getItem('downloadedDocuments');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const isDownloaded = id ? downloadedFiles.includes(id) : false;
 
   const document = mockDocuments.find(doc => doc.id === id);
 
@@ -56,8 +66,35 @@ export default function DocumentDetail() {
   };
   
   const handleDownload = () => {
-    // Dans une application réelle, nous récupérerions le fichier à partir du serveur
-    // Ici, nous simulons un téléchargement
+    // Start download progress simulation
+    setIsDownloading(true);
+    setDownloadProgress(0);
+    
+    // Simulate download progress
+    const interval = setInterval(() => {
+      setDownloadProgress(prev => {
+        const newProgress = prev + 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setIsDownloading(false);
+          
+          // Add to downloaded files
+          if (id && !downloadedFiles.includes(id)) {
+            const newDownloaded = [...downloadedFiles, id];
+            setDownloadedFiles(newDownloaded);
+            localStorage.setItem('downloadedDocuments', JSON.stringify(newDownloaded));
+          }
+          
+          // Show completion toast
+          toast({
+            title: "Téléchargement terminé",
+            description: `Le document "${document.name}" est maintenant disponible dans votre dossier Téléchargements`,
+          });
+        }
+        return newProgress;
+      });
+    }, 300);
+    
     toast({
       title: "Téléchargement démarré",
       description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
@@ -84,13 +121,15 @@ export default function DocumentDetail() {
   };
   
   const handleEdit = () => {
-    // Redirect to edit page (in a real app)
+    // Show toast about edit mode
     toast({
       title: "Mode édition",
       description: `Vous pouvez maintenant modifier les informations de "${document.name}"`,
     });
-    // Navigate to an edit page (not implemented yet)
-    // navigate(`/documents/edit/${id}`);
+    
+    // In a real app, navigate to edit page
+    // For now, just simulate by showing toast
+    console.log("Edit document:", document.id);
   };
 
   const isExpiringSoon = document.expirationDate && 
@@ -117,7 +156,7 @@ export default function DocumentDetail() {
       </header>
 
       <main className="container mx-auto p-4 max-w-lg space-y-6">
-        <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+        <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden relative">
           <img 
             src={getImageSource()} 
             alt={document.name} 
@@ -127,6 +166,13 @@ export default function DocumentDetail() {
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
+          
+          {/* Downloaded indicator badge */}
+          {isDownloaded && (
+            <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium shadow">
+              Téléchargé
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -171,11 +217,27 @@ export default function DocumentDetail() {
               </p>
             </div>
           )}
+          
+          {/* Download progress indicator */}
+          {isDownloading && (
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Téléchargement en cours...</span>
+                <span className="text-sm font-medium">{downloadProgress}%</span>
+              </div>
+              <Progress value={downloadProgress} className="h-2" />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <Button variant="outline" className="w-full" onClick={handleDownload}>
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
               <Download className="mr-2 h-4 w-4" />
-              Télécharger
+              {isDownloaded ? "Téléchargé" : "Télécharger"}
             </Button>
             <Button variant="outline" className="w-full" onClick={handleShare}>
               <Share className="mr-2 h-4 w-4" />

@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import { mockDocuments } from "@/utils/mock-data";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 interface DocumentMenuProps {
   documentId: string;
@@ -19,8 +20,18 @@ interface DocumentMenuProps {
 export function DocumentMenu({ documentId }: DocumentMenuProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [downloadedFiles, setDownloadedFiles] = useState<string[]>([]);
+  
+  useEffect(() => {
+    // Get downloaded files from localStorage if available
+    const saved = localStorage.getItem('downloadedDocuments');
+    if (saved) {
+      setDownloadedFiles(JSON.parse(saved));
+    }
+  }, []);
   
   const document = mockDocuments.find(doc => doc.id === documentId);
+  const isDownloaded = downloadedFiles.includes(documentId);
 
   const handleDelete = () => {
     toast({
@@ -32,12 +43,27 @@ export function DocumentMenu({ documentId }: DocumentMenuProps) {
   const handleDownload = () => {
     if (!document) return;
     
-    // Dans une application réelle, nous récupérerions le fichier à partir du serveur
-    // Ici, nous simulons un téléchargement
+    // Simulate a download with timeout
     toast({
       title: "Téléchargement démarré",
       description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
     });
+    
+    // Simulate download completion after delay
+    setTimeout(() => {
+      // Add to downloaded files
+      if (!downloadedFiles.includes(documentId)) {
+        const newDownloaded = [...downloadedFiles, documentId];
+        setDownloadedFiles(newDownloaded);
+        localStorage.setItem('downloadedDocuments', JSON.stringify(newDownloaded));
+      }
+      
+      // Show completion toast
+      toast({
+        title: "Téléchargement terminé",
+        description: `Le document "${document.name}" est maintenant disponible dans votre dossier Téléchargements`,
+      });
+    }, 2000);
   };
   
   const handleShare = () => {
@@ -69,9 +95,12 @@ export function DocumentMenu({ documentId }: DocumentMenuProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleDownload}>
+        <DropdownMenuItem onClick={handleDownload} className="relative">
           <Download className="mr-2" size={16} />
-          <span>Télécharger</span>
+          <span>{isDownloaded ? "Télécharger à nouveau" : "Télécharger"}</span>
+          {isDownloaded && (
+            <div className="h-2 w-2 rounded-full bg-green-500 absolute left-1"></div>
+          )}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleShare}>
           <Share className="mr-2" size={16} />

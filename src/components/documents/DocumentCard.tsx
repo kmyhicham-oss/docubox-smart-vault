@@ -9,10 +9,11 @@ import {
 import { DocumentType } from "@/types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Eye, MoreVertical } from "lucide-react";
+import { Eye, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CategoryTag } from "./CategoryTag";
 import { DocumentMenu } from "./DocumentMenu";
+import { useEffect, useState } from "react";
 
 interface DocumentCardProps {
   document: DocumentType;
@@ -20,12 +21,22 @@ interface DocumentCardProps {
 
 export function DocumentCard({ document }: DocumentCardProps) {
   const { id, name, category, expirationDate, createdAt, thumbnailPath } = document;
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  
+  useEffect(() => {
+    // Check if this document is in the downloaded list
+    const saved = localStorage.getItem('downloadedDocuments');
+    if (saved) {
+      const downloadedFiles = JSON.parse(saved);
+      setIsDownloaded(downloadedFiles.includes(id));
+    }
+  }, [id]);
 
   const isExpiringSoon = expirationDate && 
     expirationDate > new Date() && 
     expirationDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
-  // Placeholder image based on category if no thumbnailPath is provided
+  // Get appropriate image based on category when no thumbnailPath is available
   const getDefaultThumbnail = () => {
     switch(category) {
       case "identity": return "/placeholder.svg";
@@ -37,7 +48,10 @@ export function DocumentCard({ document }: DocumentCardProps) {
     }
   };
 
-  const thumbnailSrc = thumbnailPath?.startsWith("/") ? thumbnailPath : getDefaultThumbnail();
+  // Use thumbnailPath if it's a valid path, otherwise use default
+  const thumbnailSrc = thumbnailPath && thumbnailPath.startsWith("/") 
+    ? thumbnailPath 
+    : getDefaultThumbnail();
 
   return (
     <Card className="overflow-hidden">
@@ -55,6 +69,14 @@ export function DocumentCard({ document }: DocumentCardProps) {
           <div className="absolute top-2 right-2">
             <DocumentMenu documentId={id} />
           </div>
+          
+          {/* Downloaded badge */}
+          {isDownloaded && (
+            <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium shadow-sm">
+              <Download className="inline-block mr-1" size={12} />
+              Téléchargé
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-4">
