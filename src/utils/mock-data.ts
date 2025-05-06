@@ -8,8 +8,28 @@ const currentUser: UserType = {
   createdAt: new Date("2024-01-01")
 };
 
-// Use let instead of const to allow adding new documents
-let mockDocuments: DocumentType[] = [
+// Fonction pour récupérer les documents depuis localStorage ou utiliser des données par défaut
+const getStoredDocuments = (): DocumentType[] => {
+  const storedDocs = localStorage.getItem('docuboxDocuments');
+  if (storedDocs) {
+    try {
+      // Parse stored docs and convert date strings back to Date objects
+      const parsedDocs = JSON.parse(storedDocs);
+      return parsedDocs.map((doc: any) => ({
+        ...doc,
+        createdAt: new Date(doc.createdAt),
+        expirationDate: doc.expirationDate ? new Date(doc.expirationDate) : undefined
+      }));
+    } catch (error) {
+      console.error("Erreur lors de la récupération des documents:", error);
+      return getDefaultDocuments();
+    }
+  }
+  return getDefaultDocuments();
+};
+
+// Données par défaut si localStorage est vide
+const getDefaultDocuments = (): DocumentType[] => [
   {
     id: "doc-1",
     userId: currentUser.id,
@@ -113,8 +133,15 @@ let mockDocuments: DocumentType[] = [
   },
 ];
 
+// Initialiser les documents avec localStorage ou valeurs par défaut
+let mockDocuments: DocumentType[] = getStoredDocuments();
+
+// Fonction pour sauvegarder les documents dans localStorage
+const saveDocumentsToStorage = () => {
+  localStorage.setItem('docuboxDocuments', JSON.stringify(mockDocuments));
+};
+
 export const mockUser = currentUser;
-// Export the mutable mockDocuments directly, without redeclaring it
 export { mockDocuments };
 
 export const getExpiringDocuments = () => {
@@ -154,21 +181,25 @@ interface NewDocumentData {
 }
 
 export const addDocument = (documentData: NewDocumentData) => {
+  // Générer un identifiant unique avec timestamp
+  const newId = `doc-${mockDocuments.length + 1}-${Date.now()}`;
+  
+  // Définir le chemin de la miniature en fonction de la catégorie
+  const categoryThumbnails = {
+    "identity": "/images/id-preview.png",
+    "health": "/images/health-preview.png",
+    "vehicle": "/images/vehicle-preview.png",
+    "contract": "/images/lease-preview.png",
+    "other": "/images/diploma-preview.png"
+  };
+  
   const newDocument: DocumentType = {
-    id: `doc-${mockDocuments.length + 1}-${Date.now()}`,
+    id: newId,
     userId: currentUser.id,
     name: documentData.name,
     category: documentData.category,
     filePath: `/documents/${documentData.file.name}`,
-    thumbnailPath: documentData.category === "identity" 
-      ? "/images/id-preview.png" 
-      : documentData.category === "health"
-      ? "/images/health-preview.png"
-      : documentData.category === "vehicle"
-      ? "/images/vehicle-preview.png"
-      : documentData.category === "contract"
-      ? "/images/lease-preview.png"
-      : "/images/diploma-preview.png",
+    thumbnailPath: categoryThumbnails[documentData.category] || "/placeholder.svg",
     expirationDate: documentData.expirationDate,
     description: documentData.description,
     createdAt: new Date()
@@ -176,6 +207,9 @@ export const addDocument = (documentData: NewDocumentData) => {
   
   // Add the new document to the beginning of the array to show it first
   mockDocuments = [newDocument, ...mockDocuments];
+  
+  // Sauvegarder les documents dans localStorage
+  saveDocumentsToStorage();
   
   return newDocument;
 };

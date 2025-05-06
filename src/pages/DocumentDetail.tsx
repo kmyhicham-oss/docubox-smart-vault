@@ -1,4 +1,3 @@
-
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { mockDocuments } from "@/utils/mock-data";
@@ -20,7 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Logo } from "@/components/shared/Logo";
 import { Progress } from "@/components/ui/progress";
 
@@ -31,6 +30,7 @@ export default function DocumentDetail() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>(() => {
     // Get downloaded files from localStorage if available
     const saved = localStorage.getItem('downloadedDocuments');
@@ -39,6 +39,7 @@ export default function DocumentDetail() {
   
   const isDownloaded = id ? downloadedFiles.includes(id) : false;
 
+  // Get document from mockDocuments
   const document = mockDocuments.find(doc => doc.id === id);
 
   if (!document) {
@@ -58,6 +59,8 @@ export default function DocumentDetail() {
   }
 
   const handleDelete = () => {
+    // Ici nous simulerons la suppression (dans une vraie application, nous modifierions la base de données)
+    // et redirigerons l'utilisateur
     toast({
       title: "Document supprimé",
       description: "Le document a été supprimé avec succès",
@@ -121,15 +124,14 @@ export default function DocumentDetail() {
   };
   
   const handleEdit = () => {
+    // Activer le mode édition
+    setIsEditing(true);
+    
     // Show toast about edit mode
     toast({
       title: "Mode édition",
       description: `Vous pouvez maintenant modifier les informations de "${document.name}"`,
     });
-    
-    // In a real app, navigate to edit page
-    // For now, just simulate by showing toast
-    console.log("Edit document:", document.id);
   };
 
   const isExpiringSoon = document.expirationDate && 
@@ -138,8 +140,17 @@ export default function DocumentDetail() {
     
   // Get a default image if thumbnailPath is not available or is invalid
   const getImageSource = () => {
-    if (!document.thumbnailPath) return "/placeholder.svg";
-    return document.thumbnailPath.startsWith("/") ? document.thumbnailPath : "/placeholder.svg";
+    if (!document.thumbnailPath) {
+      switch(document.category) {
+        case "identity": return "/images/id-preview.png";
+        case "health": return "/images/health-preview.png";
+        case "vehicle": return "/images/vehicle-preview.png";
+        case "contract": return "/images/lease-preview.png";
+        case "other": return "/images/diploma-preview.png";
+        default: return "/placeholder.svg";
+      }
+    }
+    return document.thumbnailPath;
   };
 
   return (
@@ -162,6 +173,7 @@ export default function DocumentDetail() {
             alt={document.name} 
             className="w-full h-full object-cover" 
             onError={(e) => {
+              console.log("Image failed to load:", getImageSource());
               // If image fails to load, replace with default placeholder
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
@@ -170,6 +182,7 @@ export default function DocumentDetail() {
           {/* Downloaded indicator badge */}
           {isDownloaded && (
             <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium shadow">
+              <Download className="inline-block mr-1" size={12} />
               Téléchargé
             </div>
           )}

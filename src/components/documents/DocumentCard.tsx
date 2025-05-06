@@ -39,19 +39,17 @@ export function DocumentCard({ document }: DocumentCardProps) {
   // Get appropriate image based on category when no thumbnailPath is available
   const getDefaultThumbnail = () => {
     switch(category) {
-      case "identity": return "/placeholder.svg";
-      case "health": return "/placeholder.svg";
-      case "vehicle": return "/placeholder.svg";
-      case "contract": return "/placeholder.svg";
-      case "other": return "/placeholder.svg";
+      case "identity": return "/images/id-preview.png";
+      case "health": return "/images/health-preview.png";
+      case "vehicle": return "/images/vehicle-preview.png";
+      case "contract": return "/images/lease-preview.png";
+      case "other": return "/images/diploma-preview.png";
       default: return "/placeholder.svg";
     }
   };
 
   // Use thumbnailPath if it's a valid path, otherwise use default
-  const thumbnailSrc = thumbnailPath && thumbnailPath.startsWith("/") 
-    ? thumbnailPath 
-    : getDefaultThumbnail();
+  const thumbnailSrc = thumbnailPath || getDefaultThumbnail();
 
   return (
     <Card className="overflow-hidden">
@@ -62,6 +60,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
             alt={name} 
             className="w-full h-full object-cover" 
             onError={(e) => {
+              console.log("Image failed to load:", thumbnailSrc);
               // If image fails to load, replace with default placeholder
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
@@ -88,13 +87,13 @@ export function DocumentCard({ document }: DocumentCardProps) {
         <div className="mt-2 flex items-center justify-between">
           <CategoryTag category={category} />
           <span className="text-xs text-muted-foreground">
-            {format(createdAt, "dd MMM yyyy", { locale: fr })}
+            {format(new Date(createdAt), "dd MMM yyyy", { locale: fr })}
           </span>
         </div>
         {expirationDate && (
           <div className={`mt-2 text-xs ${isExpiringSoon ? "text-docubox-identity" : "text-muted-foreground"}`}>
             {isExpiringSoon ? "⚠️ " : ""}
-            Expire: {format(expirationDate, "dd MMM yyyy", { locale: fr })}
+            Expire: {format(new Date(expirationDate), "dd MMM yyyy", { locale: fr })}
           </div>
         )}
       </CardContent>
