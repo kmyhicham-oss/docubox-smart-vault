@@ -1,3 +1,4 @@
+
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { mockDocuments } from "@/utils/mock-data";
@@ -52,6 +53,34 @@ export default function DocumentDetail() {
       description: "Le document a été supprimé avec succès",
     });
     navigate("/documents");
+  };
+  
+  const handleDownload = () => {
+    // Dans une application réelle, nous récupérerions le fichier à partir du serveur
+    // Ici, nous simulons un téléchargement
+    toast({
+      title: "Téléchargement démarré",
+      description: `Le document "${document.name}" est en cours de téléchargement`,
+    });
+  };
+  
+  const handleShare = () => {
+    // Dans une application réelle, nous ouvririons une boîte de dialogue pour partager
+    // Ici, nous simulons un partage
+    navigator.clipboard.writeText(`https://docubox.app/share/${id}`)
+      .then(() => {
+        toast({
+          title: "Lien de partage copié",
+          description: "Le lien de partage a été copié dans le presse-papier",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Erreur",
+          description: "Impossible de copier le lien de partage",
+          variant: "destructive",
+        });
+      });
   };
 
   const isExpiringSoon = document.expirationDate && 
@@ -130,11 +159,11 @@ export default function DocumentDetail() {
           )}
 
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
               Télécharger
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={handleShare}>
               <Share className="mr-2 h-4 w-4" />
               Partager
             </Button>
