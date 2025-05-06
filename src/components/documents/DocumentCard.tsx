@@ -24,22 +24,34 @@ export function DocumentCard({ document }: DocumentCardProps) {
   const isExpiringSoon = expirationDate && 
     expirationDate > new Date() && 
     expirationDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    
+  // Placeholder image based on category if no thumbnailPath is provided
+  const getDefaultThumbnail = () => {
+    switch(category) {
+      case "identity": return "/placeholder.svg";
+      case "health": return "/placeholder.svg";
+      case "vehicle": return "/placeholder.svg";
+      case "contract": return "/placeholder.svg";
+      case "other": return "/placeholder.svg";
+      default: return "/placeholder.svg";
+    }
+  };
+
+  const thumbnailSrc = thumbnailPath?.startsWith("/") ? thumbnailPath : getDefaultThumbnail();
 
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-0">
         <div className="relative h-36 bg-muted overflow-hidden">
-          {thumbnailPath ? (
-            <img 
-              src={thumbnailPath} 
-              alt={name} 
-              className="w-full h-full object-cover" 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-secondary">
-              <span className="text-muted-foreground text-sm">Aperçu indisponible</span>
-            </div>
-          )}
+          <img 
+            src={thumbnailSrc} 
+            alt={name} 
+            className="w-full h-full object-cover" 
+            onError={(e) => {
+              // If image fails to load, replace with default placeholder
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
+          />
           <div className="absolute top-2 right-2">
             <DocumentMenu documentId={id} />
           </div>

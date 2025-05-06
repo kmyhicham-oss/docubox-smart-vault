@@ -60,7 +60,7 @@ export default function DocumentDetail() {
     // Ici, nous simulons un téléchargement
     toast({
       title: "Téléchargement démarré",
-      description: `Le document "${document.name}" est en cours de téléchargement`,
+      description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
     });
   };
   
@@ -82,10 +82,26 @@ export default function DocumentDetail() {
         });
       });
   };
+  
+  const handleEdit = () => {
+    // Redirect to edit page (in a real app)
+    toast({
+      title: "Mode édition",
+      description: `Vous pouvez maintenant modifier les informations de "${document.name}"`,
+    });
+    // Navigate to an edit page (not implemented yet)
+    // navigate(`/documents/edit/${id}`);
+  };
 
   const isExpiringSoon = document.expirationDate && 
     document.expirationDate > new Date() && 
     document.expirationDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    
+  // Get a default image if thumbnailPath is not available or is invalid
+  const getImageSource = () => {
+    if (!document.thumbnailPath) return "/placeholder.svg";
+    return document.thumbnailPath.startsWith("/") ? document.thumbnailPath : "/placeholder.svg";
+  };
 
   return (
     <div className="pb-20">
@@ -102,17 +118,15 @@ export default function DocumentDetail() {
 
       <main className="container mx-auto p-4 max-w-lg space-y-6">
         <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
-          {document.thumbnailPath ? (
-            <img 
-              src={document.thumbnailPath} 
-              alt={document.name} 
-              className="w-full h-full object-cover" 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-muted-foreground">Aperçu indisponible</span>
-            </div>
-          )}
+          <img 
+            src={getImageSource()} 
+            alt={document.name} 
+            className="w-full h-full object-cover" 
+            onError={(e) => {
+              // If image fails to load, replace with default placeholder
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
+          />
         </div>
 
         <div className="space-y-4">
@@ -170,7 +184,7 @@ export default function DocumentDetail() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="secondary" className="w-full">
+            <Button variant="secondary" className="w-full" onClick={handleEdit}>
               <Edit className="mr-2 h-4 w-4" />
               Modifier
             </Button>

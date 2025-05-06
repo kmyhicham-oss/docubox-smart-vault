@@ -36,7 +36,7 @@ export function DocumentMenu({ documentId }: DocumentMenuProps) {
     // Ici, nous simulons un téléchargement
     toast({
       title: "Téléchargement démarré",
-      description: `Le document "${document.name}" est en cours de téléchargement`,
+      description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
     });
   };
   
