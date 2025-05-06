@@ -5,12 +5,25 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
 import { getDocumentsByCategory, searchDocuments } from "@/utils/mock-data";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Documents() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  // This effect will run when navigating back to this page from AddDocument
+  useEffect(() => {
+    const handleFocus = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
   
   const filteredDocuments = searchQuery 
     ? searchDocuments(searchQuery) 
@@ -44,6 +57,7 @@ export default function Documents() {
                 ? "Aucun document ne correspond à votre recherche" 
                 : "Aucun document dans cette catégorie"
             } 
+            key={refreshKey} /* Force refresh when key changes */
           />
         </div>
       </main>

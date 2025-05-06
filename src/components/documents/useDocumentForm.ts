@@ -1,11 +1,12 @@
 
-import { DocumentCategory } from "@/types";
+import { DocumentCategory, DocumentType } from "@/types";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { addDocument } from "@/utils/mock-data";
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -43,7 +44,16 @@ export function useDocumentForm() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission
+    // Add document to mock data
+    addDocument({
+      name: values.name,
+      category: values.category,
+      expirationDate: values.expirationDate,
+      description: values.description,
+      file
+    });
+
+    // Simulate form submission with delay
     setTimeout(() => {
       setIsSubmitting(false);
       toast({
