@@ -114,7 +114,8 @@ let mockDocuments: DocumentType[] = [
 ];
 
 export const mockUser = currentUser;
-export const mockDocuments = mockDocuments;
+// Export the mutable mockDocuments directly, without redeclaring it
+export { mockDocuments };
 
 export const getExpiringDocuments = () => {
   const now = new Date();
