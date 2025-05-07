@@ -9,8 +9,21 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function SignIn() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
+  
+  // Get the subtitle based on current language
+  const getSubtitle = () => {
+    switch(language) {
+      case "ar":
+        return "📦 Tanssa? Hna manssawch!";
+      case "fr":
+        return "Tu oublies ? Nous, jamais !";
+      case "en":
+      default:
+        return "You forget? We don't!";
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-docubox-gray-light">
@@ -25,8 +38,12 @@ export default function SignIn() {
             <Logo />
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">DocuBox</h2>
-          <p className="text-gray-600 mb-6">{t("auth.login.accountAccess")}</p>
+          <h2 className="text-2xl font-bold mb-2">
+            <span className="text-primary">Docu</span>
+            <span className="text-black">Box</span>
+          </h2>
+          <p className="text-gray-600 mb-2">{t("auth.login.accountAccess")}</p>
+          <p className="text-sm text-gray-500 italic mb-6">{getSubtitle()}</p>
           
           <LoginForm />
           
