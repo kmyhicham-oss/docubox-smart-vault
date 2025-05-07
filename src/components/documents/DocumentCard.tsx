@@ -59,10 +59,11 @@ export function DocumentCard({ document }: DocumentCardProps) {
             src={thumbnailSrc} 
             alt={name} 
             className="w-full h-full object-cover" 
+            loading="lazy"
             onError={(e) => {
               console.log("Image failed to load:", thumbnailSrc);
               // If image fails to load, replace with default placeholder
-              (e.target as HTMLImageElement).src = "/placeholder.svg";
+              (e.target as HTMLImageElement).src = getDefaultThumbnail();
             }}
           />
           <div className="absolute top-2 right-2">

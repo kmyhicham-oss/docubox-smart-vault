@@ -17,7 +17,10 @@ export default function SignUp() {
       {/* Left side - Brand info (visible only on larger screens) */}
       <div className="hidden md:flex md:w-1/2 bg-emerald-600 p-6 items-center justify-center">
         <div className="max-w-md text-white">
-          <SafeImage className="mb-8 max-w-[280px] mx-auto" />
+          <SafeImage 
+            className="mb-8 w-full max-w-[400px] mx-auto h-auto" 
+            style={{ aspectRatio: '16/9' }}
+          />
           
           <h2 className="text-3xl font-bold mb-4">DocuBox</h2>
           <p className="text-xl mb-6">📋 {t("auth.register.tagline")}</p>
@@ -39,6 +42,7 @@ export default function SignUp() {
           
           <p className="mb-2">🔒 {t("auth.register.secure")}</p>
           <p>📱 {t("auth.register.join")}</p>
+          <p className="mt-4 text-sm opacity-80">✨ Nouveauté : Scan de documents intégré</p>
         </div>
       </div>
       
@@ -69,8 +73,9 @@ export default function SignUp() {
             </span>
           </div>
           
-          <p className="text-gray-600 mb-2 md:hidden">🔒 {t("auth.register.secure")}</p>
-          <p className="text-gray-600 mb-6 md:hidden">📱 {t("auth.register.join")}</p>
+          <p className="text-gray-600 mb-1 md:hidden">🔒 {t("auth.register.secure")}</p>
+          <p className="text-gray-600 mb-2 md:hidden">📱 {t("auth.register.join")}</p>
+          <p className="text-green-600 font-medium mb-6 md:hidden">✨ Nouveauté : Scan de documents intégré</p>
           
           <SignupForm />
           
