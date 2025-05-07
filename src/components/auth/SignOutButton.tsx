@@ -20,7 +20,10 @@ const SignOutButton = ({
   const { logout } = useAuth();
   const { t } = useLanguage();
 
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    // Clear any session data and redirect
+    localStorage.removeItem("docubox-user");
     // Use the redirectTo prop for navigation after logout
     logout(redirectTo);
   };

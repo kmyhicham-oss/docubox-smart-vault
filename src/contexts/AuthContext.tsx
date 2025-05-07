@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +8,12 @@ type User = {
   email: string;
   name?: string;
 };
+
+// Add a simple mock database for demo purposes
+const MOCK_USERS = [
+  { email: "user@example.com", password: "password123" },
+  { email: "test@example.com", password: "test123" }
+];
 
 interface AuthContextType {
   user: User | null;
@@ -48,12 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       // In a real application, you would validate credentials against a backend
-      // For this example, we'll just simulate a successful login after a delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // For this demo, we'll use our mock database
+      const foundUser = MOCK_USERS.find(u => u.email === email && u.password === password);
       
-      // Simple validation (would be done on the server in a real app)
-      if (password.length < 6) {
-        throw new Error(t("auth.errors.passwordLength"));
+      if (!foundUser) {
+        throw new Error(t("auth.errors.invalidCredentials"));
       }
       
       const userData: User = { email };
@@ -93,6 +99,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(t("auth.errors.passwordMismatch"));
       }
       
+      // Add the new user to our mock database
+      MOCK_USERS.push({ email, password });
+      
       const userData: User = { email };
       setUser(userData);
       localStorage.setItem("docubox-user", JSON.stringify(userData));
@@ -115,13 +124,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = (redirectTo: string = "/signin") => {
+    // Clear user from state
     setUser(null);
+    
+    // Clear user from localStorage
     localStorage.removeItem("docubox-user");
+    
+    // Show success message
     toast({
       title: t("auth.logout.success"),
       description: t("auth.logout.message")
     });
-    navigate(redirectTo);
+    
+    // Use a small timeout to ensure the state is updated before navigation
+    setTimeout(() => {
+      navigate(redirectTo);
+    }, 100);
   };
 
   return (

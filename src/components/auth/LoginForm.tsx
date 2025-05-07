@@ -22,6 +22,7 @@ const LoginForm = () => {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [isResetting, setIsResetting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const { login, isLoading } = useAuth();
   const { t } = useLanguage();
@@ -29,7 +30,13 @@ const LoginForm = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await login(email, password);
+    setError(null);
+    try {
+      await login(email, password);
+    } catch (err) {
+      // Error feedback is now handled by the AuthContext
+      console.error("Login error:", err);
+    }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -103,6 +110,7 @@ const LoginForm = () => {
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </Button>
           </div>
+          {error && <p className="text-sm text-destructive mt-1">{error}</p>}
         </div>
         
         <Button
@@ -113,6 +121,11 @@ const LoginForm = () => {
           <LogIn className="mr-2 h-4 w-4" />
           {isLoading ? t("auth.login.processing") : t("auth.login.action")}
         </Button>
+        
+        {/* Demo credentials hint */}
+        <div className="text-xs text-gray-500 text-center">
+          <p>Démo: utilisez user@example.com / password123</p>
+        </div>
       </form>
 
       {/* Forgot Password Dialog */}
