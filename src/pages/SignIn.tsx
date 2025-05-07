@@ -25,7 +25,7 @@ export default function SignIn() {
             <Logo />
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">{t("auth.login.welcomeBack")}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">DocuBox</h2>
           <p className="text-gray-600 mb-6">{t("auth.login.accountAccess")}</p>
           
           <LoginForm />
