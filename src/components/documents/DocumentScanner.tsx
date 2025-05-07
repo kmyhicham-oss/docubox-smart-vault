@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ export function DocumentScanner() {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   
-  const fileInputRef = useState<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -76,7 +76,7 @@ export function DocumentScanner() {
                   Cliquez pour télécharger ou glissez-déposez
                 </p>
                 <Input
-                  ref={(el) => fileInputRef.current = el}
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
@@ -117,7 +117,7 @@ export function DocumentScanner() {
                   Utilisez votre appareil photo pour numériser
                 </p>
                 <Input
-                  ref={(el) => fileInputRef.current = el}
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   capture="environment"
