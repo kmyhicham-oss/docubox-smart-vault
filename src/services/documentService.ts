@@ -14,7 +14,18 @@ export async function getDocuments() {
     return [];
   }
 
-  return data as DocumentType[];
+  // Conversion des données retournées par Supabase au format DocumentType
+  return data.map(doc => ({
+    id: doc.id,
+    userId: doc.user_id,
+    name: doc.name,
+    category: doc.category as DocumentCategory,
+    filePath: doc.file_path,
+    thumbnailPath: doc.thumbnail_path,
+    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
+    createdAt: new Date(doc.created_at),
+    description: doc.description,
+  })) as DocumentType[];
 }
 
 export async function getDocumentsByCategory(category: DocumentCategory | 'all') {
@@ -33,7 +44,18 @@ export async function getDocumentsByCategory(category: DocumentCategory | 'all')
     return [];
   }
 
-  return data as DocumentType[];
+  // Conversion des données retournées par Supabase au format DocumentType
+  return data.map(doc => ({
+    id: doc.id,
+    userId: doc.user_id,
+    name: doc.name,
+    category: doc.category as DocumentCategory,
+    filePath: doc.file_path,
+    thumbnailPath: doc.thumbnail_path,
+    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
+    createdAt: new Date(doc.created_at),
+    description: doc.description,
+  })) as DocumentType[];
 }
 
 export async function getDocumentById(id: string) {
@@ -48,7 +70,18 @@ export async function getDocumentById(id: string) {
     return null;
   }
 
-  return data as DocumentType;
+  // Conversion des données retournées par Supabase au format DocumentType
+  return {
+    id: data.id,
+    userId: data.user_id,
+    name: data.name,
+    category: data.category as DocumentCategory,
+    filePath: data.file_path,
+    thumbnailPath: data.thumbnail_path,
+    expirationDate: data.expiration_date ? new Date(data.expiration_date) : undefined,
+    createdAt: new Date(data.created_at),
+    description: data.description,
+  } as DocumentType;
 }
 
 export async function searchDocuments(query: string) {
@@ -63,7 +96,18 @@ export async function searchDocuments(query: string) {
     return [];
   }
 
-  return data as DocumentType[];
+  // Conversion des données retournées par Supabase au format DocumentType
+  return data.map(doc => ({
+    id: doc.id,
+    userId: doc.user_id,
+    name: doc.name,
+    category: doc.category as DocumentCategory,
+    filePath: doc.file_path,
+    thumbnailPath: doc.thumbnail_path,
+    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
+    createdAt: new Date(doc.created_at),
+    description: doc.description,
+  })) as DocumentType[];
 }
 
 export async function getExpiringDocuments() {
@@ -82,7 +126,18 @@ export async function getExpiringDocuments() {
     return [];
   }
 
-  return data as DocumentType[];
+  // Conversion des données retournées par Supabase au format DocumentType
+  return data.map(doc => ({
+    id: doc.id,
+    userId: doc.user_id,
+    name: doc.name,
+    category: doc.category as DocumentCategory,
+    filePath: doc.file_path,
+    thumbnailPath: doc.thumbnail_path,
+    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
+    createdAt: new Date(doc.created_at),
+    description: doc.description,
+  })) as DocumentType[];
 }
 
 export async function addDocument({ name, category, expirationDate, description, file }: {
