@@ -186,7 +186,7 @@ export async function addDocument({ name, category, expirationDate, description,
         name,
         category,
         description,
-        expiration_date: expirationDate,
+        expiration_date: expirationDate ? expirationDate.toISOString() : null,  // Convertir Date en string
         file_path: filePath,
         thumbnail_path: thumbnailPath
       });
@@ -203,9 +203,17 @@ export async function addDocument({ name, category, expirationDate, description,
 }
 
 export async function updateDocument(id: string, updates: Partial<DocumentType>) {
+  // Convertir le type DocumentType en format Supabase
+  const supabaseUpdates: any = {};
+  
+  if (updates.name) supabaseUpdates.name = updates.name;
+  if (updates.category) supabaseUpdates.category = updates.category;
+  if (updates.description) supabaseUpdates.description = updates.description;
+  if (updates.expirationDate) supabaseUpdates.expiration_date = updates.expirationDate.toISOString();
+  
   const { error } = await supabase
     .from('documents')
-    .update(updates)
+    .update(supabaseUpdates)
     .eq('id', id);
     
   if (error) {

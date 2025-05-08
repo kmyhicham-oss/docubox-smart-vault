@@ -3,20 +3,17 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "./LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from '@supabase/supabase-js';
 
-type User = {
+type AuthUser = {
   email: string;
   name?: string;
+  id: string;
 };
 
-// Add a simple mock database for demo purposes
-const MOCK_USERS = [
-  { email: "user@example.com", password: "password123" },
-  { email: "test@example.com", password: "test123" }
-];
-
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -35,36 +32,70 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Check if user is stored in localStorage on initial load
-    const storedUser = localStorage.getItem("docubox-user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
+        if (currentSession?.user) {
+          const authUser: AuthUser = {
+            id: currentSession.user.id,
+            email: currentSession.user.email || "",
+            name: currentSession.user.user_metadata.name
+          };
+          setUser(authUser);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    // Then check for existing session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession?.user) {
+          const authUser: AuthUser = {
+            id: initialSession.user.id,
+            email: initialSession.user.email || "",
+            name: initialSession.user.user_metadata.name
+          };
+          setUser(authUser);
+          setSession(initialSession);
+        }
+      } catch (error) {
+        console.error("Error checking auth session:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
     try {
-      // In a real application, you would validate credentials against a backend
-      // For this demo, we'll use our mock database
-      const foundUser = MOCK_USERS.find(u => u.email === email && u.password === password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      if (!foundUser) {
-        throw new Error(t("auth.errors.invalidCredentials"));
+      if (error) {
+        throw error;
       }
-      
-      const userData: User = { email };
-      setUser(userData);
-      localStorage.setItem("docubox-user", JSON.stringify(userData));
       
       toast({
         title: t("auth.login.success"),
@@ -72,10 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: t("auth.errors.loginFailed"),
-        description: error instanceof Error ? error.message : t("auth.errors.generic"),
+        description: error.message || t("auth.errors.generic"),
         variant: "destructive"
       });
     } finally {
@@ -87,9 +118,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // In a real application, you would send this data to a backend
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
       // Validate password
       if (password.length < 6) {
         throw new Error(t("auth.errors.passwordLength"));
@@ -99,12 +127,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(t("auth.errors.passwordMismatch"));
       }
       
-      // Add the new user to our mock database
-      MOCK_USERS.push({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
       
-      const userData: User = { email };
-      setUser(userData);
-      localStorage.setItem("docubox-user", JSON.stringify(userData));
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: t("auth.register.success"),
@@ -112,10 +142,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: t("auth.errors.registrationFailed"),
-        description: error instanceof Error ? error.message : t("auth.errors.generic"),
+        description: error.message || t("auth.errors.generic"),
         variant: "destructive"
       });
     } finally {
@@ -123,23 +153,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = (redirectTo: string = "/signin") => {
-    // Clear user from state
-    setUser(null);
-    
-    // Clear user from localStorage
-    localStorage.removeItem("docubox-user");
-    
-    // Show success message
-    toast({
-      title: t("auth.logout.success"),
-      description: t("auth.logout.message")
-    });
-    
-    // Use a small timeout to ensure the state is updated before navigation
-    setTimeout(() => {
-      navigate(redirectTo);
-    }, 100);
+  const logout = async (redirectTo: string = "/signin") => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Clear user from state
+      setUser(null);
+      setSession(null);
+      
+      // Show success message
+      toast({
+        title: t("auth.logout.success"),
+        description: t("auth.logout.message")
+      });
+      
+      // Use a small timeout to ensure the state is updated before navigation
+      setTimeout(() => {
+        navigate(redirectTo);
+      }, 100);
+    } catch (error: any) {
+      toast({
+        title: "Erreur de déconnexion",
+        description: error.message || "Une erreur est survenue lors de la déconnexion.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
