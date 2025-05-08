@@ -6,18 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Camera, Upload, X } from "lucide-react";
+import { addDocument } from "@/services/documentService";
+import { useNavigate } from "react-router-dom";
 
 export function DocumentScanner() {
   const [scanMode, setScanMode] = useState<"camera" | "upload">("upload");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
+    setCapturedFile(file);
     
     const reader = new FileReader();
     reader.onload = () => {
@@ -34,23 +40,45 @@ export function DocumentScanner() {
     }
   };
   
-  const handleProcessDocument = () => {
-    if (!capturedImage) return;
+  const handleProcessDocument = async () => {
+    if (!capturedImage || !capturedFile) return;
     
     setIsProcessing(true);
     
-    // Simulate document processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast({
-        title: "Document numérisé avec succès",
-        description: "Le document a été correctement numérisé et est prêt pour l'enregistrement.",
+    try {
+      // Ajouter le document à Supabase
+      const result = await addDocument({
+        name: `Document scanné le ${new Date().toLocaleDateString()}`,
+        category: "other",
+        file: capturedFile
       });
-    }, 2000);
+      
+      if (result.success) {
+        toast({
+          title: "Document numérisé avec succès",
+          description: "Le document a été correctement numérisé et est prêt pour l'enregistrement.",
+        });
+        
+        // Rediriger vers le document nouvellement créé
+        navigate(`/documents/${result.documentId}`);
+      } else {
+        throw result.error;
+      }
+    } catch (error) {
+      console.error("Erreur lors du traitement du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du traitement du document",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
   
   const handleReset = () => {
     setCapturedImage(null);
+    setCapturedFile(null);
   };
 
   return (

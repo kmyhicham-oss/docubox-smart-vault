@@ -9,9 +9,10 @@ import {
 import { Download, MoreVertical, Pencil, Share, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
-import { mockDocuments } from "@/utils/mock-data";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { deleteDocument, downloadDocument, getDocumentById } from "@/services/documentService";
+import { DocumentType } from "@/types";
 
 interface DocumentMenuProps {
   documentId: string;
@@ -20,6 +21,7 @@ interface DocumentMenuProps {
 export function DocumentMenu({ documentId }: DocumentMenuProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [document, setDocument] = useState<DocumentType | null>(null);
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>([]);
   
   useEffect(() => {
@@ -28,42 +30,70 @@ export function DocumentMenu({ documentId }: DocumentMenuProps) {
     if (saved) {
       setDownloadedFiles(JSON.parse(saved));
     }
-  }, []);
+    
+    // Récupérer les informations du document
+    const fetchDocument = async () => {
+      try {
+        const doc = await getDocumentById(documentId);
+        setDocument(doc);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du document:", error);
+      }
+    };
+    
+    fetchDocument();
+  }, [documentId]);
   
-  const document = mockDocuments.find(doc => doc.id === documentId);
   const isDownloaded = downloadedFiles.includes(documentId);
 
-  const handleDelete = () => {
-    toast({
-      title: "Document supprimé",
-      description: "Le document a été supprimé avec succès",
-    });
+  const handleDelete = async () => {
+    try {
+      const result = await deleteDocument(documentId);
+      
+      if (result.success) {
+        toast({
+          title: "Document supprimé",
+          description: "Le document a été supprimé avec succès",
+        });
+        // Rafraîchir la page ou la liste des documents
+        window.location.reload();
+      } else {
+        throw result.error;
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du document",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!document) return;
     
-    // Simulate a download with timeout
     toast({
       title: "Téléchargement démarré",
       description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
     });
     
-    // Simulate download completion after delay
-    setTimeout(() => {
-      // Add to downloaded files
-      if (!downloadedFiles.includes(documentId)) {
-        const newDownloaded = [...downloadedFiles, documentId];
-        setDownloadedFiles(newDownloaded);
-        localStorage.setItem('downloadedDocuments', JSON.stringify(newDownloaded));
-      }
+    try {
+      await downloadDocument(documentId, document.name);
       
       // Show completion toast
       toast({
         title: "Téléchargement terminé",
         description: `Le document "${document.name}" est maintenant disponible dans votre dossier Téléchargements`,
       });
-    }, 2000);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du téléchargement du document",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleShare = () => {

@@ -1,12 +1,12 @@
 
-import { DocumentCategory, DocumentType } from "@/types";
+import { DocumentCategory } from "@/types";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { addDocument } from "@/utils/mock-data";
+import { addDocument } from "@/services/documentService";
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -32,7 +32,7 @@ export function useDocumentForm() {
     },
   });
 
-  const handleSubmit = (values: DocumentFormValues, file: File | null) => {
+  const handleSubmit = async (values: DocumentFormValues, file: File | null) => {
     if (!file) {
       toast({
         title: "Fichier requis",
@@ -44,24 +44,35 @@ export function useDocumentForm() {
 
     setIsSubmitting(true);
 
-    // Add document to mock data
-    addDocument({
-      name: values.name,
-      category: values.category,
-      expirationDate: values.expirationDate,
-      description: values.description,
-      file
-    });
-
-    // Simulate form submission with delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast({
-        title: "Document ajouté",
-        description: "Votre document a été ajouté avec succès",
+    try {
+      // Ajout du document via Supabase
+      const result = await addDocument({
+        name: values.name,
+        category: values.category,
+        expirationDate: values.expirationDate,
+        description: values.description,
+        file
       });
-      navigate("/documents");
-    }, 1500);
+
+      if (result.success) {
+        toast({
+          title: "Document ajouté",
+          description: "Votre document a été ajouté avec succès",
+        });
+        navigate("/documents");
+      } else {
+        throw result.error;
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout du document.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {

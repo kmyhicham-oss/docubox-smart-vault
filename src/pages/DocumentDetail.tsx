@@ -1,6 +1,5 @@
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
-import { mockDocuments } from "@/utils/mock-data";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Calendar, Clock, Download, Edit, Share, Trash } from "lucide-react";
@@ -22,6 +21,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/shared/Logo";
 import { Progress } from "@/components/ui/progress";
+import { deleteDocument, downloadDocument, getDocumentById } from "@/services/documentService";
+import { DocumentType } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function DocumentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -31,6 +33,8 @@ export default function DocumentDetail() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [document, setDocument] = useState<DocumentType | null>(null);
   const [downloadedFiles, setDownloadedFiles] = useState<string[]>(() => {
     // Get downloaded files from localStorage if available
     const saved = localStorage.getItem('downloadedDocuments');
@@ -39,8 +43,36 @@ export default function DocumentDetail() {
   
   const isDownloaded = id ? downloadedFiles.includes(id) : false;
 
-  // Get document from mockDocuments
-  const document = mockDocuments.find(doc => doc.id === id);
+  useEffect(() => {
+    const fetchDocument = async () => {
+      if (!id) return;
+      
+      setIsLoading(true);
+      try {
+        const doc = await getDocumentById(id);
+        setDocument(doc);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du document:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le document demandé",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDocument();
+  }, [id, toast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!document) {
     return (
@@ -58,17 +90,30 @@ export default function DocumentDetail() {
     );
   }
 
-  const handleDelete = () => {
-    // Ici nous simulerons la suppression (dans une vraie application, nous modifierions la base de données)
-    // et redirigerons l'utilisateur
-    toast({
-      title: "Document supprimé",
-      description: "Le document a été supprimé avec succès",
-    });
-    navigate("/documents");
+  const handleDelete = async () => {
+    try {
+      const result = await deleteDocument(document.id);
+      
+      if (result.success) {
+        toast({
+          title: "Document supprimé",
+          description: "Le document a été supprimé avec succès",
+        });
+        navigate("/documents");
+      } else {
+        throw result.error;
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du document",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Start download progress simulation
     setIsDownloading(true);
     setDownloadProgress(0);
@@ -80,28 +125,26 @@ export default function DocumentDetail() {
         if (newProgress >= 100) {
           clearInterval(interval);
           setIsDownloading(false);
-          
-          // Add to downloaded files
-          if (id && !downloadedFiles.includes(id)) {
-            const newDownloaded = [...downloadedFiles, id];
-            setDownloadedFiles(newDownloaded);
-            localStorage.setItem('downloadedDocuments', JSON.stringify(newDownloaded));
-          }
-          
-          // Show completion toast
-          toast({
-            title: "Téléchargement terminé",
-            description: `Le document "${document.name}" est maintenant disponible dans votre dossier Téléchargements`,
-          });
         }
         return newProgress;
       });
     }, 300);
     
-    toast({
-      title: "Téléchargement démarré",
-      description: `Le document "${document.name}" est en cours de téléchargement dans votre dossier Téléchargements`,
-    });
+    try {
+      await downloadDocument(document.id, document.name);
+      
+      toast({
+        title: "Téléchargement terminé",
+        description: `Le document "${document.name}" est maintenant disponible dans votre dossier Téléchargements`,
+      });
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du document:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du téléchargement du document",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleShare = () => {
@@ -138,8 +181,8 @@ export default function DocumentDetail() {
     document.expirationDate > new Date() && 
     document.expirationDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
-  // Get a default image if thumbnailPath is not available or is invalid
-  const getImageSource = () => {
+  // Fonction pour obtenir l'URL de l'image
+  const getImageUrl = async () => {
     if (!document.thumbnailPath) {
       switch(document.category) {
         case "identity": return "/images/id-preview.png";
@@ -150,7 +193,22 @@ export default function DocumentDetail() {
         default: return "/placeholder.svg";
       }
     }
-    return document.thumbnailPath;
+    
+    // On génère une URL de téléchargement pour l'image
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(document.thumbnailPath, 60);
+        
+      if (error || !data) {
+        throw error;
+      }
+      
+      return data.signedUrl;
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'URL de l'image:", error);
+      return "/placeholder.svg";
+    }
   };
 
   return (
@@ -169,11 +227,11 @@ export default function DocumentDetail() {
       <main className="container mx-auto p-4 max-w-lg space-y-6">
         <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden relative">
           <img 
-            src={getImageSource()} 
+            src={getImageUrl()} 
             alt={document.name} 
             className="w-full h-full object-cover" 
             onError={(e) => {
-              console.log("Image failed to load:", getImageSource());
+              console.log("Image failed to load:", getImageUrl());
               // If image fails to load, replace with default placeholder
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}

@@ -3,17 +3,42 @@ import { DocumentGrid } from "@/components/documents/DocumentGrid";
 import { DocumentsFilter } from "@/components/documents/DocumentsFilter";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/button";
-import { getDocumentsByCategory, searchDocuments } from "@/utils/mock-data";
+import { getDocumentsByCategory, searchDocuments } from "@/services/documentService";
 import { PlusIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { DocumentType } from "@/types";
 
 export default function Documents() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [documents, setDocuments] = useState<DocumentType[]>([]);
   
-  // This effect will run when navigating back to this page from AddDocument
+  // Effet pour charger les documents en fonction de la catégorie et de la recherche
+  useEffect(() => {
+    const loadDocuments = async () => {
+      setIsLoading(true);
+      try {
+        let docs;
+        if (searchQuery) {
+          docs = await searchDocuments(searchQuery);
+        } else {
+          docs = await getDocumentsByCategory(selectedCategory as any);
+        }
+        setDocuments(docs);
+      } catch (error) {
+        console.error("Erreur lors du chargement des documents:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDocuments();
+  }, [selectedCategory, searchQuery, refreshKey]);
+  
+  // Cet effet s'exécutera lors de la navigation de retour vers cette page depuis AddDocument
   useEffect(() => {
     const handleFocus = () => {
       setRefreshKey(prev => prev + 1);
@@ -24,10 +49,6 @@ export default function Documents() {
       window.removeEventListener('focus', handleFocus);
     };
   }, []);
-  
-  const filteredDocuments = searchQuery 
-    ? searchDocuments(searchQuery) 
-    : getDocumentsByCategory(selectedCategory as any);
 
   return (
     <div className="pb-20">
@@ -50,15 +71,20 @@ export default function Documents() {
         />
         
         <div className="mt-6">
-          <DocumentGrid 
-            documents={filteredDocuments} 
-            emptyMessage={
-              searchQuery 
-                ? "Aucun document ne correspond à votre recherche" 
-                : "Aucun document dans cette catégorie"
-            } 
-            key={refreshKey} /* Force refresh when key changes */
-          />
+          {isLoading ? (
+            <div className="flex justify-center p-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <DocumentGrid 
+              documents={documents} 
+              emptyMessage={
+                searchQuery 
+                  ? "Aucun document ne correspond à votre recherche" 
+                  : "Aucun document dans cette catégorie"
+              } 
+            />
+          )}
         </div>
       </main>
 
