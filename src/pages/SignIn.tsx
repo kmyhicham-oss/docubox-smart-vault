@@ -16,7 +16,7 @@ export default function SignIn() {
   const getSubtitle = () => {
     switch(language) {
       case "ar":
-        return "📦 Tanssa? Hna manssawch!";
+        return "📦 تنسى؟ حنا منساوش!";  // Correction de la phrase en arabe
       case "fr":
         return "Tu oublies ? Nous, jamais !";
       case "en":
