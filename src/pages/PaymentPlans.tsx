@@ -14,6 +14,15 @@ import { Badge } from "@/components/ui/badge";
 import { CreditCard, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// Declare PayPal interface for TypeScript
+declare global {
+  interface Window {
+    paypal?: {
+      Buttons: (config: any) => { render: (container: HTMLElement) => void };
+    };
+  }
+}
+
 const PaymentPlans = () => {
   const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
@@ -36,7 +45,6 @@ const PaymentPlans = () => {
           // Clear any existing buttons
           paypalContainerRef.current.innerHTML = '';
           
-          // @ts-ignore - PayPal is loaded dynamically
           window.paypal.Buttons({
             createOrder: (data: any, actions: any) => {
               return actions.order.create({

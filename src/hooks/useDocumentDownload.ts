@@ -1,60 +1,62 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { downloadDocument } from "@/services/documentService";
+import { DocumentType } from "@/types";
 
-export function useDocumentDownload(documentId: string | undefined, documentName: string) {
+export function useDocumentDownload() {
   const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadProgress, setDownloadProgress] = useState(0);
-  const [downloadedFiles, setDownloadedFiles] = useState<string[]>(() => {
-    // Get downloaded files from localStorage if available
-    const saved = localStorage.getItem('downloadedDocuments');
-    return saved ? JSON.parse(saved) : [];
-  });
   
-  const isDownloaded = documentId ? downloadedFiles.includes(documentId) : false;
-
-  const handleDownload = async () => {
-    if (!documentId) return;
+  const downloadDocument = async (document: DocumentType) => {
+    if (!document) return;
     
-    // Start download progress simulation
     setIsDownloading(true);
-    setDownloadProgress(0);
-    
-    // Simulate download progress
-    const interval = setInterval(() => {
-      setDownloadProgress(prev => {
-        const newProgress = prev + 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setIsDownloading(false);
-        }
-        return newProgress;
-      });
-    }, 300);
+    toast({
+      title: "Téléchargement démarré",
+      description: `Le document "${document.name}" est en cours de téléchargement`,
+    });
     
     try {
-      await downloadDocument(documentId, documentName);
+      // Simulate file download
+      const url = URL.createObjectURL(new Blob([`Document content for ${document.name}`], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = document.name + '.pdf';
+      document.body.appendChild(a);
+      a.click();
       
+      // Cleanup
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      // Save downloaded status
+      const savedFiles = localStorage.getItem('downloadedDocuments') || '[]';
+      const downloadedFiles = JSON.parse(savedFiles);
+      if (!downloadedFiles.includes(document.id)) {
+        downloadedFiles.push(document.id);
+        localStorage.setItem('downloadedDocuments', JSON.stringify(downloadedFiles));
+      }
+      
+      // Show completion toast
       toast({
         title: "Téléchargement terminé",
-        description: `Le document "${documentName}" est maintenant disponible dans votre dossier Téléchargements`,
+        description: `Le document "${document.name}" est maintenant disponible`,
       });
+      
+      return true;
     } catch (error) {
       console.error("Erreur lors du téléchargement du document:", error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors du téléchargement du document",
+        description: "Une erreur est survenue lors du téléchargement",
         variant: "destructive",
       });
+      return false;
+    } finally {
+      setIsDownloading(false);
     }
   };
-
-  return {
-    isDownloading,
-    downloadProgress,
-    isDownloaded,
-    handleDownload
-  };
+  
+  return { downloadDocument, isDownloading };
 }

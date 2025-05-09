@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { DocumentType } from "@/types";
 
@@ -20,22 +21,75 @@ export async function getDocuments() {
   }
 }
 
-export async function addDocument(document: Omit<DocumentType, 'id' | 'created_at'>) {
+export async function getDocumentsByCategory(category: string) {
   try {
     const { data, error } = await supabase
       .from('documents')
-      .insert([document])
+      .select('*')
+      .eq('category', category)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error fetching documents by category:", error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Unexpected error fetching documents by category:", error);
+    throw error;
+  }
+}
+
+export async function searchDocuments(query: string) {
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .ilike('name', `%${query}%`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error searching documents:", error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Unexpected error searching documents:", error);
+    throw error;
+  }
+}
+
+export async function addDocument(document: Omit<DocumentType, 'id' | 'created_at'>) {
+  try {
+    // Convert to database format expected by Supabase
+    const dbDocument = {
+      name: document.name,
+      description: document.description || '',
+      category: document.category,
+      expiration_date: document.expirationDate || null,
+      file_path: document.filePath || '',
+      thumbnail_path: document.thumbnailPath || '',
+      user_id: document.userId || ''
+    };
+
+    const { data, error } = await supabase
+      .from('documents')
+      .insert([dbDocument])
       .select();
 
     if (error) {
       console.error("Error adding document:", error);
-      throw error;
+      return { success: false, error };
     }
 
-    return data ? data[0] as DocumentType : null;
+    // Map back to DocumentType
+    const newDoc = data ? mapToDocumentType(data[0]) : null;
+    return { success: true, document: newDoc };
   } catch (error) {
     console.error("Unexpected error adding document:", error);
-    throw error;
+    return { success: false, error };
   }
 }
 
@@ -52,7 +106,7 @@ export async function getDocumentById(id: string) {
       throw error;
     }
 
-    return data as DocumentType;
+    return mapToDocumentType(data);
   } catch (error) {
     console.error("Unexpected error fetching document by ID:", error);
     throw error;
@@ -61,21 +115,32 @@ export async function getDocumentById(id: string) {
 
 export async function updateDocument(id: string, updates: Partial<DocumentType>) {
   try {
+    // Convert to database format expected by Supabase
+    const dbUpdates: any = {};
+    
+    if (updates.name) dbUpdates.name = updates.name;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.category) dbUpdates.category = updates.category;
+    if (updates.expirationDate !== undefined) dbUpdates.expiration_date = updates.expirationDate;
+    if (updates.filePath !== undefined) dbUpdates.file_path = updates.filePath;
+    if (updates.thumbnailPath !== undefined) dbUpdates.thumbnail_path = updates.thumbnailPath;
+
     const { data, error } = await supabase
       .from('documents')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id)
       .select();
 
     if (error) {
       console.error("Error updating document:", error);
-      throw error;
+      return { success: false, error };
     }
 
-    return data ? data[0] as DocumentType : null;
+    const updatedDoc = data ? mapToDocumentType(data[0]) : null;
+    return { success: true, document: updatedDoc };
   } catch (error) {
     console.error("Unexpected error updating document:", error);
-    throw error;
+    return { success: false, error };
   }
 }
 
@@ -88,13 +153,13 @@ export async function deleteDocument(id: string) {
 
     if (error) {
       console.error("Error deleting document:", error);
-      throw error;
+      return { success: false, error };
     }
 
-    return true;
+    return { success: true };
   } catch (error) {
     console.error("Unexpected error deleting document:", error);
-    throw error;
+    return { success: false, error };
   }
 }
 
@@ -102,7 +167,7 @@ export async function generatePDF(document: DocumentType) {
   try {
     const response = {
       file_path: `generated_pdfs/${document.id}.pdf`,
-      url: URL.createObjectURL(new Blob([`PDF Content for ${document.title}`], { type: 'application/pdf' }))
+      url: URL.createObjectURL(new Blob([`PDF Content for ${document.name}`], { type: 'application/pdf' }))
     };
     
     return response;
@@ -110,4 +175,54 @@ export async function generatePDF(document: DocumentType) {
     console.error('Error generating PDF:', error);
     throw error;
   }
+}
+
+export async function downloadDocument(documentId: string, documentName: string) {
+  try {
+    // In a real app, this would fetch the actual file from storage
+    const response = await fetch(`/api/documents/${documentId}/download`);
+    const blob = await response.blob();
+    
+    // Create a download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = documentName + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    // In a real app, save downloaded status to user profile in backend
+    const savedFiles = localStorage.getItem('downloadedDocuments') || '[]';
+    const downloadedFiles = JSON.parse(savedFiles);
+    if (!downloadedFiles.includes(documentId)) {
+      downloadedFiles.push(documentId);
+      localStorage.setItem('downloadedDocuments', JSON.stringify(downloadedFiles));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error downloading document:', error);
+    throw error;
+  }
+}
+
+// Helper function to map database format to DocumentType
+function mapToDocumentType(data: any): DocumentType {
+  return {
+    id: data.id,
+    name: data.name,
+    description: data.description || '',
+    category: data.category,
+    expirationDate: data.expiration_date || null,
+    filePath: data.file_path || '',
+    thumbnailPath: data.thumbnail_path || '',
+    userId: data.user_id || '',
+    createdAt: data.created_at,
+    updatedAt: data.updated_at
+  };
 }
