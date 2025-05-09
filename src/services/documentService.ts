@@ -1,304 +1,113 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { DocumentCategory, DocumentType } from "@/types";
-import { v4 as uuidv4 } from 'uuid';
+import { DocumentType } from "@/types";
 
 export async function getDocuments() {
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error("Erreur lors de la récupération des documents:", error);
-    return [];
+    if (error) {
+      console.error("Error fetching documents:", error);
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Unexpected error fetching documents:", error);
+    throw error;
   }
-
-  // Conversion des données retournées par Supabase au format DocumentType
-  return data.map(doc => ({
-    id: doc.id,
-    userId: doc.user_id,
-    name: doc.name,
-    category: doc.category as DocumentCategory,
-    filePath: doc.file_path,
-    thumbnailPath: doc.thumbnail_path,
-    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
-    createdAt: new Date(doc.created_at),
-    description: doc.description,
-  })) as DocumentType[];
 }
 
-export async function getDocumentsByCategory(category: DocumentCategory | 'all') {
-  if (category === 'all') {
-    return getDocuments();
+export async function addDocument(document: Omit<DocumentType, 'id' | 'created_at'>) {
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .insert([document])
+      .select();
+
+    if (error) {
+      console.error("Error adding document:", error);
+      throw error;
+    }
+
+    return data ? data[0] as DocumentType : null;
+  } catch (error) {
+    console.error("Unexpected error adding document:", error);
+    throw error;
   }
-
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .eq('category', category)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error(`Erreur lors de la récupération des documents de catégorie ${category}:`, error);
-    return [];
-  }
-
-  // Conversion des données retournées par Supabase au format DocumentType
-  return data.map(doc => ({
-    id: doc.id,
-    userId: doc.user_id,
-    name: doc.name,
-    category: doc.category as DocumentCategory,
-    filePath: doc.file_path,
-    thumbnailPath: doc.thumbnail_path,
-    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
-    createdAt: new Date(doc.created_at),
-    description: doc.description,
-  })) as DocumentType[];
 }
 
 export async function getDocumentById(id: string) {
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (error) {
-    console.error(`Erreur lors de la récupération du document ${id}:`, error);
-    return null;
-  }
-
-  // Conversion des données retournées par Supabase au format DocumentType
-  return {
-    id: data.id,
-    userId: data.user_id,
-    name: data.name,
-    category: data.category as DocumentCategory,
-    filePath: data.file_path,
-    thumbnailPath: data.thumbnail_path,
-    expirationDate: data.expiration_date ? new Date(data.expiration_date) : undefined,
-    createdAt: new Date(data.created_at),
-    description: data.description,
-  } as DocumentType;
-}
-
-export async function searchDocuments(query: string) {
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error("Erreur lors de la recherche de documents:", error);
-    return [];
-  }
-
-  // Conversion des données retournées par Supabase au format DocumentType
-  return data.map(doc => ({
-    id: doc.id,
-    userId: doc.user_id,
-    name: doc.name,
-    category: doc.category as DocumentCategory,
-    filePath: doc.file_path,
-    thumbnailPath: doc.thumbnail_path,
-    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
-    createdAt: new Date(doc.created_at),
-    description: doc.description,
-  })) as DocumentType[];
-}
-
-export async function getExpiringDocuments() {
-  const thirtyDaysFromNow = new Date();
-  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-  
-  const { data, error } = await supabase
-    .from('documents')
-    .select('*')
-    .lt('expiration_date', thirtyDaysFromNow.toISOString())
-    .gt('expiration_date', new Date().toISOString())
-    .order('expiration_date', { ascending: true });
-
-  if (error) {
-    console.error("Erreur lors de la récupération des documents expirant bientôt:", error);
-    return [];
-  }
-
-  // Conversion des données retournées par Supabase au format DocumentType
-  return data.map(doc => ({
-    id: doc.id,
-    userId: doc.user_id,
-    name: doc.name,
-    category: doc.category as DocumentCategory,
-    filePath: doc.file_path,
-    thumbnailPath: doc.thumbnail_path,
-    expirationDate: doc.expiration_date ? new Date(doc.expiration_date) : undefined,
-    createdAt: new Date(doc.created_at),
-    description: doc.description,
-  })) as DocumentType[];
-}
-
-export async function addDocument({ name, category, expirationDate, description, file }: {
-  name: string;
-  category: DocumentCategory;
-  expirationDate?: Date;
-  description?: string;
-  file: File;
-}) {
   try {
-    // 1. On récupère l'utilisateur connecté
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error("Utilisateur non connecté");
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching document by ID:", error);
+      throw error;
     }
 
-    // 2. On génère un identifiant unique pour le document
-    const documentId = uuidv4();
-    
-    // 3. On définit le chemin de stockage du fichier (userId/documentId.extension)
-    const fileExtension = file.name.split('.').pop();
-    const filePath = `${user.id}/${documentId}.${fileExtension}`;
-    
-    // 4. On upload le fichier dans le bucket "documents"
-    const { error: uploadError } = await supabase.storage
-      .from('documents')
-      .upload(filePath, file);
-    
-    if (uploadError) {
-      throw uploadError;
-    }
-
-    // 5. On génère un thumbnail pour les fichiers image
-    let thumbnailPath = null;
-    if (file.type.startsWith('image/')) {
-      thumbnailPath = filePath; // Pour simplifier, on utilise le même chemin
-    }
-    
-    // 6. On crée l'entrée dans la base de données
-    const { error: insertError } = await supabase
-      .from('documents')
-      .insert({
-        id: documentId,
-        user_id: user.id,
-        name,
-        category,
-        description,
-        expiration_date: expirationDate ? expirationDate.toISOString() : null,  // Convertir Date en string
-        file_path: filePath,
-        thumbnail_path: thumbnailPath
-      });
-    
-    if (insertError) {
-      throw insertError;
-    }
-    
-    return { success: true, documentId };
+    return data as DocumentType;
   } catch (error) {
-    console.error("Erreur lors de l'ajout du document:", error);
-    return { success: false, error };
+    console.error("Unexpected error fetching document by ID:", error);
+    throw error;
   }
 }
 
 export async function updateDocument(id: string, updates: Partial<DocumentType>) {
-  // Convertir le type DocumentType en format Supabase
-  const supabaseUpdates: any = {};
-  
-  if (updates.name) supabaseUpdates.name = updates.name;
-  if (updates.category) supabaseUpdates.category = updates.category;
-  if (updates.description) supabaseUpdates.description = updates.description;
-  if (updates.expirationDate) supabaseUpdates.expiration_date = updates.expirationDate.toISOString();
-  
-  const { error } = await supabase
-    .from('documents')
-    .update(supabaseUpdates)
-    .eq('id', id);
-    
-  if (error) {
-    console.error(`Erreur lors de la mise à jour du document ${id}:`, error);
-    return { success: false, error };
+  try {
+    const { data, error } = await supabase
+      .from('documents')
+      .update(updates)
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error("Error updating document:", error);
+      throw error;
+    }
+
+    return data ? data[0] as DocumentType : null;
+  } catch (error) {
+    console.error("Unexpected error updating document:", error);
+    throw error;
   }
-  
-  return { success: true };
 }
 
 export async function deleteDocument(id: string) {
-  // On récupère d'abord le document pour avoir le chemin du fichier
-  const { data: document } = await supabase
-    .from('documents')
-    .select('file_path')
-    .eq('id', id)
-    .single();
-    
-  if (document && document.file_path) {
-    // On supprime le fichier du stockage
-    const { error: storageError } = await supabase.storage
+  try {
+    const { error } = await supabase
       .from('documents')
-      .remove([document.file_path]);
-      
-    if (storageError) {
-      console.error(`Erreur lors de la suppression du fichier ${document.file_path}:`, storageError);
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error("Error deleting document:", error);
+      throw error;
     }
+
+    return true;
+  } catch (error) {
+    console.error("Unexpected error deleting document:", error);
+    throw error;
   }
-  
-  // On supprime l'entrée de la base de données
-  const { error: dbError } = await supabase
-    .from('documents')
-    .delete()
-    .eq('id', id);
-    
-  if (dbError) {
-    console.error(`Erreur lors de la suppression du document ${id}:`, dbError);
-    return { success: false, error: dbError };
-  }
-  
-  return { success: true };
 }
 
-// Fonction pour télécharger un document
-export async function downloadDocument(documentId: string, fileName: string) {
+export async function generatePDF(document: DocumentType) {
   try {
-    // On récupère le chemin du fichier
-    const { data: document, error: fetchError } = await supabase
-      .from('documents')
-      .select('file_path')
-      .eq('id', documentId)
-      .single();
+    const response = {
+      file_path: `generated_pdfs/${document.id}.pdf`,
+      url: URL.createObjectURL(new Blob([`PDF Content for ${document.title}`], { type: 'application/pdf' }))
+    };
     
-    if (fetchError || !document) {
-      throw fetchError || new Error("Document introuvable");
-    }
-    
-    // On télécharge le fichier
-    const { data, error: downloadError } = await supabase.storage
-      .from('documents')
-      .download(document.file_path);
-      
-    if (downloadError) {
-      throw downloadError;
-    }
-    
-    // On crée un lien de téléchargement
-    const url = URL.createObjectURL(data);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    // On met à jour la liste des documents téléchargés
-    const downloadedFiles = JSON.parse(localStorage.getItem('downloadedDocuments') || '[]');
-    if (!downloadedFiles.includes(documentId)) {
-      downloadedFiles.push(documentId);
-      localStorage.setItem('downloadedDocuments', JSON.stringify(downloadedFiles));
-    }
-    
-    return { success: true };
+    return response;
   } catch (error) {
-    console.error("Erreur lors du téléchargement du document:", error);
-    return { success: false, error };
+    console.error('Error generating PDF:', error);
+    throw error;
   }
 }

@@ -1,70 +1,67 @@
 
-import { cn } from "@/lib/utils";
-import { FilePlus, FilesIcon, Home, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { Home, FileText, PlusCircle, Settings, CreditCard } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function BottomNav() {
+export default function BottomNav() {
   const location = useLocation();
-  const currentPath = location.pathname;
   const { t } = useLanguage();
-
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+  
   const navItems = [
-    {
-      label: t("nav.home"),
-      href: "/",
-      icon: Home,
+    { 
+      path: '/', 
+      icon: <Home className="h-6 w-6" />, 
+      label: t('navigation.home'), 
+      active: isActive('/') 
     },
-    {
-      label: t("nav.documents"),
-      href: "/documents",
-      icon: FilesIcon,
+    { 
+      path: '/documents', 
+      icon: <FileText className="h-6 w-6" />, 
+      label: t('navigation.documents'), 
+      active: isActive('/documents') 
     },
-    {
-      label: t("nav.add"),
-      href: "/add-document",
-      icon: FilePlus,
-      isMain: true,
+    { 
+      path: '/add-document', 
+      icon: <PlusCircle className="h-6 w-6" />, 
+      label: t('navigation.addDocument'), 
+      active: isActive('/add-document') 
     },
-    {
-      label: t("nav.settings"),
-      href: "/settings",
-      icon: Settings,
+    { 
+      path: '/payment-plans', 
+      icon: <CreditCard className="h-6 w-6" />, 
+      label: t('navigation.payment'), 
+      active: isActive('/payment-plans') 
+    },
+    { 
+      path: '/settings', 
+      icon: <Settings className="h-6 w-6" />, 
+      label: t('navigation.settings'), 
+      active: isActive('/settings') 
     },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t pb-safe-bottom z-50">
-      <div className="grid grid-cols-4 gap-1 h-16">
-        {navItems.map((item) => {
-          const isActive = currentPath === item.href;
-          
-          return (
-            <Link
-              to={item.href}
-              key={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center px-2",
-                isActive ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              {item.isMain ? (
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary text-primary-foreground rounded-full p-3 -mt-8 shadow-lg">
-                    <item.icon size={22} />
-                  </div>
-                  <span className="text-xs mt-1">{item.label}</span>
-                </div>
-              ) : (
-                <>
-                  <item.icon size={20} />
-                  <span className="text-xs mt-1">{item.label}</span>
-                </>
-              )}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t h-16 flex items-center justify-around px-2 z-50">
+      {navItems.map((item) => (
+        <Link 
+          key={item.path} 
+          to={item.path}
+          className={cn(
+            "flex flex-col items-center justify-center w-full h-full",
+            item.active 
+              ? "text-primary" 
+              : "text-muted-foreground hover:text-primary"
+          )}
+        >
+          {item.icon}
+          <span className="text-xs mt-1">{item.label}</span>
+        </Link>
+      ))}
+    </div>
   );
 }

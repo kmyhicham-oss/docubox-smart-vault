@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import PaymentPlans from "./pages/PaymentPlans";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
@@ -51,6 +52,7 @@ const AppRoutes = () => {
       <Route path="/documents/:id" element={<ProtectedRoute element={<DocumentDetail />} />} />
       <Route path="/add-document" element={<ProtectedRoute element={<AddDocument />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
+      <Route path="/payment-plans" element={<ProtectedRoute element={<PaymentPlans />} />} />
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />
