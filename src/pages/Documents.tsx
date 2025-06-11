@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import { DocumentGrid } from "@/components/documents/DocumentGrid";
 import { DocumentsFilter } from "@/components/documents/DocumentsFilter";
+import { DocumentLimitWarning } from "@/components/payment/DocumentLimitWarning";
 import BottomNav from "@/components/layout/BottomNav";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getDocuments } from "@/services/documentService";
@@ -14,10 +16,10 @@ export default function Documents() {
   const [category, setCategory] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { data: documents, isLoading, isError } = useQuery(
-    ["documents"],
-    () => getDocuments()
-  );
+  const { data: documents, isLoading, isError } = useQuery({
+    queryKey: ["documents"],
+    queryFn: () => getDocuments()
+  });
 
   const filteredDocuments = documents
     ? documents.filter((doc) => {
@@ -46,13 +48,18 @@ export default function Documents() {
             <Link to="/add-document">{t("addDocument")}</Link>
           </Button>
         </div>
-        <DocumentsFilter
-          category={category}
-          setCategory={setCategory}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
-        <DocumentGrid documents={filteredDocuments} />
+        
+        <DocumentLimitWarning documentCount={documents?.length || 0} />
+        
+        <div className="mt-6">
+          <DocumentsFilter
+            category={category}
+            setCategory={setCategory}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <DocumentGrid documents={filteredDocuments} />
+        </div>
       </div>
       <BottomNav />
     </div>
