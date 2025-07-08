@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -43,16 +44,30 @@ const LoginForm = () => {
     e.preventDefault();
     setIsResetting(true);
     
-    // Simulate password reset request
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
       setIsResetting(false);
       setForgotPasswordOpen(false);
       
       toast({
         title: "Instructions envoyées",
-        description: `Un email de réinitialisation a été envoyé à ${resetEmail}.`,
+        description: `Un email de réinitialisation a été envoyé à ${resetEmail}. Vérifiez votre boîte de réception.`,
       });
-    }, 1500);
+    } catch (error: any) {
+      setIsResetting(false);
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de l'envoi de l'email de réinitialisation.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

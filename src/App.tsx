@@ -11,6 +11,7 @@ import DocumentDetail from "./pages/DocumentDetail";
 import Settings from "./pages/Settings";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import PaymentPlans from "./pages/PaymentPlans";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -44,6 +45,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/signin" element={isAuthenticated ? <Navigate to="/" /> : <SignIn />} />
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <SignUp />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/login" element={<Navigate to="/signin" />} /> {/* Redirect old route to new */}
       
       {/* Protected Routes */}
