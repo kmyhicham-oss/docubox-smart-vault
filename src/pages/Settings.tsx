@@ -1,7 +1,7 @@
 // Import BottomNav correctly
 import BottomNav from "@/components/layout/BottomNav";
 import { LanguageSelector } from "@/components/settings/LanguageSelector";
-import { SignOutButton } from "@/components/auth/SignOutButton";
+import SignOutButton from "@/components/auth/SignOutButton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Languages, Info, CreditCard, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
