@@ -17,6 +17,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithMicrosoft: () => Promise<void>;
   register: (email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: (redirectTo?: string) => void;
 }
@@ -114,6 +116,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          scopes: 'https://www.googleapis.com/auth/drive.readonly',
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      toast({
+        title: t("auth.errors.loginFailed"),
+        description: error.message || t("auth.errors.generic"),
+        variant: "destructive"
+      });
+    }
+  };
+
+  const loginWithMicrosoft = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          scopes: 'https://graph.microsoft.com/Files.Read',
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+    } catch (error: any) {
+      toast({
+        title: t("auth.errors.loginFailed"),
+        description: error.message || t("auth.errors.generic"),
+        variant: "destructive"
+      });
+    }
+  };
+
   const register = async (email: string, password: string, confirmPassword: string) => {
     setIsLoading(true);
     
@@ -186,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, loginWithGoogle, loginWithMicrosoft, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
