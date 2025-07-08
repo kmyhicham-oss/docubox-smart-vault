@@ -53,10 +53,8 @@ export default function Documents() {
         
         <div className="mt-6">
           <DocumentsFilter
-            category={category}
-            setCategory={setCategory}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
+            onCategoryChange={setCategory}
+            onSearchChange={setSearchQuery}
           />
           <DocumentGrid documents={filteredDocuments} />
         </div>

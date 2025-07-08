@@ -23,9 +23,9 @@ export default function Index() {
         <DocumentLimitWarning documentCount={mockDocuments.length} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          <StatsByCategory documents={mockDocuments} />
-          <RecentDocuments documents={mockDocuments} />
-          <ExpiringDocuments documents={mockDocuments} />
+          <StatsByCategory />
+          <RecentDocuments />
+          <ExpiringDocuments />
         </div>
 
         <div className="mt-8 text-center">
