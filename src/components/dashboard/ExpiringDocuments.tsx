@@ -36,8 +36,8 @@ export function ExpiringDocuments() {
       <CardContent>
         <div className="space-y-4">
           {expiringDocs.map((doc) => {
-            const daysUntilExpiry = doc.expirationDate 
-              ? differenceInDays(doc.expirationDate, new Date())
+            const daysUntilExpiry = doc.expiration_date 
+              ? differenceInDays(new Date(doc.expiration_date), new Date())
               : null;
               
             let urgencyColor = "bg-green-100 text-green-800";
@@ -57,11 +57,11 @@ export function ExpiringDocuments() {
                 <div>
                   <div className="font-medium">{doc.name}</div>
                   <div className="flex items-center space-x-2 mt-1">
-                    <CategoryTag category={doc.category} withIcon={false} className="text-xs" />
-                    {doc.expirationDate && (
+                    <CategoryTag category={doc.category as any} withIcon={false} className="text-xs" />
+                    {doc.expiration_date && (
                       <div className="flex items-center text-xs text-muted-foreground">
                         <Calendar size={12} className="mr-1" />
-                        {format(doc.expirationDate, "dd MMM yyyy", { locale: fr })}
+                        {format(new Date(doc.expiration_date), "dd MMM yyyy", { locale: fr })}
                       </div>
                     )}
                   </div>

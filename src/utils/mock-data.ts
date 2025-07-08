@@ -17,8 +17,8 @@ const getStoredDocuments = (): DocumentType[] => {
       const parsedDocs = JSON.parse(storedDocs);
       return parsedDocs.map((doc: any) => ({
         ...doc,
-        createdAt: new Date(doc.createdAt),
-        expirationDate: doc.expirationDate ? new Date(doc.expirationDate) : undefined
+        created_at: doc.created_at || new Date(doc.createdAt).toISOString(),
+        expiration_date: doc.expiration_date || (doc.expirationDate ? new Date(doc.expirationDate).toISOString() : null)
       }));
     } catch (error) {
       console.error("Erreur lors de la récupération des documents:", error);
@@ -32,104 +32,123 @@ const getStoredDocuments = (): DocumentType[] => {
 const getDefaultDocuments = (): DocumentType[] => [
   {
     id: "doc-1",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Carte d'identité nationale",
     category: "identity",
-    filePath: "/documents/card.pdf",
-    thumbnailPath: "/images/id-preview.png",
-    expirationDate: addDays(new Date(), 45),
-    createdAt: new Date("2024-01-15"),
+    file_path: "/documents/card.pdf",
+    thumbnail_path: "/images/id-preview.png",
+    expiration_date: addDays(new Date(), 45).toISOString(),
+    created_at: new Date("2024-01-15").toISOString(),
+    updated_at: new Date("2024-01-15").toISOString(),
     description: "Carte d'identité renouvelée en janvier 2024"
   },
   {
     id: "doc-2",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Passeport",
     category: "identity",
-    filePath: "/documents/passport.pdf",
-    thumbnailPath: "/images/passport-preview.png",
-    expirationDate: addDays(new Date(), 730),
-    createdAt: new Date("2023-11-20"),
+    file_path: "/documents/passport.pdf",
+    thumbnail_path: "/images/passport-preview.png",
+    expiration_date: addDays(new Date(), 730).toISOString(),
+    created_at: new Date("2023-11-20").toISOString(),
+    updated_at: new Date("2023-11-20").toISOString(),
     description: "Passeport valide pour 10 ans"
   },
   {
     id: "doc-3",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Carte vitale",
     category: "health",
-    filePath: "/documents/health-card.pdf",
-    thumbnailPath: "/images/health-preview.png",
-    createdAt: new Date("2023-12-05")
+    file_path: "/documents/health-card.pdf",
+    thumbnail_path: "/images/health-preview.png",
+    expiration_date: null,
+    created_at: new Date("2023-12-05").toISOString(),
+    updated_at: new Date("2023-12-05").toISOString(),
+    description: null
   },
   {
     id: "doc-4",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Ordonnance médicale",
     category: "health",
-    filePath: "/documents/prescription.pdf",
-    thumbnailPath: "/images/prescription-preview.png",
-    expirationDate: addDays(new Date(), 5),
-    createdAt: new Date("2024-04-25"),
+    file_path: "/documents/prescription.pdf",
+    thumbnail_path: "/images/prescription-preview.png",
+    expiration_date: addDays(new Date(), 5).toISOString(),
+    created_at: new Date("2024-04-25").toISOString(),
+    updated_at: new Date("2024-04-25").toISOString(),
     description: "Ordonnance pour traitement chronique"
   },
   {
     id: "doc-5",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Carte grise",
     category: "vehicle",
-    filePath: "/documents/vehicle-registration.pdf",
-    thumbnailPath: "/images/vehicle-preview.png",
-    createdAt: new Date("2023-08-12")
+    file_path: "/documents/vehicle-registration.pdf",
+    thumbnail_path: "/images/vehicle-preview.png",
+    expiration_date: null,
+    created_at: new Date("2023-08-12").toISOString(),
+    updated_at: new Date("2023-08-12").toISOString(),
+    description: null
   },
   {
     id: "doc-6",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Assurance auto",
     category: "vehicle",
-    filePath: "/documents/car-insurance.pdf",
-    thumbnailPath: "/images/insurance-preview.png",
-    expirationDate: addDays(new Date(), 15),
-    createdAt: new Date("2023-10-30"),
+    file_path: "/documents/car-insurance.pdf",
+    thumbnail_path: "/images/insurance-preview.png",
+    expiration_date: addDays(new Date(), 15).toISOString(),
+    created_at: new Date("2023-10-30").toISOString(),
+    updated_at: new Date("2023-10-30").toISOString(),
     description: "Police d'assurance tous risques"
   },
   {
     id: "doc-7",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Bail d'appartement",
     category: "contract",
-    filePath: "/documents/lease.pdf",
-    thumbnailPath: "/images/lease-preview.png",
-    expirationDate: addDays(new Date(), 180),
-    createdAt: new Date("2023-07-01"),
+    file_path: "/documents/lease.pdf",
+    thumbnail_path: "/images/lease-preview.png",
+    expiration_date: addDays(new Date(), 180).toISOString(),
+    created_at: new Date("2023-07-01").toISOString(),
+    updated_at: new Date("2023-07-01").toISOString(),
     description: "Contrat de location pour 3 ans"
   },
   {
     id: "doc-8",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Facture internet",
     category: "contract",
-    filePath: "/documents/internet-bill.pdf",
-    thumbnailPath: "/images/bill-preview.png",
-    createdAt: new Date("2024-03-15")
+    file_path: "/documents/internet-bill.pdf",
+    thumbnail_path: "/images/bill-preview.png",
+    expiration_date: null,
+    created_at: new Date("2024-03-15").toISOString(),
+    updated_at: new Date("2024-03-15").toISOString(),
+    description: null
   },
   {
     id: "doc-9",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Diplôme universitaire",
     category: "other",
-    filePath: "/documents/diploma.pdf",
-    thumbnailPath: "/images/diploma-preview.png",
-    createdAt: new Date("2023-09-10"),
+    file_path: "/documents/diploma.pdf",
+    thumbnail_path: "/images/diploma-preview.png",
+    expiration_date: null,
+    created_at: new Date("2023-09-10").toISOString(),
+    updated_at: new Date("2023-09-10").toISOString(),
     description: "Master en informatique"
   },
   {
     id: "doc-10",
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: "Certificat de naissance",
     category: "identity",
-    filePath: "/documents/birth-certificate.pdf",
-    thumbnailPath: "/images/birth-preview.png",
-    createdAt: new Date("2023-06-18")
+    file_path: "/documents/birth-certificate.pdf",
+    thumbnail_path: "/images/birth-preview.png",
+    expiration_date: null,
+    created_at: new Date("2023-06-18").toISOString(),
+    updated_at: new Date("2023-06-18").toISOString(),
+    description: null
   },
 ];
 
@@ -149,9 +168,9 @@ export const getExpiringDocuments = () => {
   const thirtyDaysFromNow = addDays(now, 30);
   
   return mockDocuments.filter(doc => 
-    doc.expirationDate && 
-    doc.expirationDate > now && 
-    doc.expirationDate <= thirtyDaysFromNow
+    doc.expiration_date && 
+    new Date(doc.expiration_date) > now && 
+    new Date(doc.expiration_date) <= thirtyDaysFromNow
   );
 };
 
@@ -195,14 +214,15 @@ export const addDocument = (documentData: NewDocumentData) => {
   
   const newDocument: DocumentType = {
     id: newId,
-    userId: currentUser.id,
+    user_id: currentUser.id,
     name: documentData.name,
     category: documentData.category,
-    filePath: `/documents/${documentData.file.name}`,
-    thumbnailPath: categoryThumbnails[documentData.category] || "/placeholder.svg",
-    expirationDate: documentData.expirationDate,
-    description: documentData.description,
-    createdAt: new Date()
+    file_path: `/documents/${documentData.file.name}`,
+    thumbnail_path: categoryThumbnails[documentData.category] || "/placeholder.svg",
+    expiration_date: documentData.expirationDate ? documentData.expirationDate.toISOString() : null,
+    description: documentData.description || null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   };
   
   // Add the new document to the beginning of the array to show it first

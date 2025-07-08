@@ -49,9 +49,12 @@ export function useDocumentForm() {
       const result = await addDocument({
         name: values.name,
         category: values.category,
-        expirationDate: values.expirationDate,
+        expiration_date: values.expirationDate ? values.expirationDate.toISOString() : null,
         description: values.description,
-        file
+        user_id: '', // This should be set by the addDocument function
+        file_path: '',
+        thumbnail_path: '',
+        updated_at: new Date().toISOString()
       });
 
       if (result.success) {

@@ -17,7 +17,7 @@ import { CategoryTag } from "../documents/CategoryTag";
 export function RecentDocuments() {
   // Get 5 most recent documents
   const recentDocuments = [...mockDocuments]
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5);
 
   return (
@@ -38,10 +38,10 @@ export function RecentDocuments() {
               <div>
                 <div className="font-medium">{doc.name}</div>
                 <div className="flex items-center space-x-2 mt-1">
-                  <CategoryTag category={doc.category} withIcon={false} className="text-xs" />
+                  <CategoryTag category={doc.category as any} withIcon={false} className="text-xs" />
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Clock size={12} className="mr-1" />
-                    {format(doc.createdAt, "dd MMM yyyy", { locale: fr })}
+                    {format(new Date(doc.created_at), "dd MMM yyyy", { locale: fr })}
                   </div>
                 </div>
               </div>

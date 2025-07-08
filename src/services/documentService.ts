@@ -68,10 +68,10 @@ export async function addDocument(document: Omit<DocumentType, 'id' | 'created_a
       name: document.name,
       description: document.description || '',
       category: document.category,
-      expiration_date: document.expirationDate || null,
-      file_path: document.filePath || '',
-      thumbnail_path: document.thumbnailPath || '',
-      user_id: document.userId || ''
+      expiration_date: document.expiration_date || null,
+      file_path: document.file_path || '',
+      thumbnail_path: document.thumbnail_path || '',
+      user_id: document.user_id || ''
     };
 
     const { data, error } = await supabase
@@ -121,9 +121,9 @@ export async function updateDocument(id: string, updates: Partial<DocumentType>)
     if (updates.name) dbUpdates.name = updates.name;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
     if (updates.category) dbUpdates.category = updates.category;
-    if (updates.expirationDate !== undefined) dbUpdates.expiration_date = updates.expirationDate;
-    if (updates.filePath !== undefined) dbUpdates.file_path = updates.filePath;
-    if (updates.thumbnailPath !== undefined) dbUpdates.thumbnail_path = updates.thumbnailPath;
+    if (updates.expiration_date !== undefined) dbUpdates.expiration_date = updates.expiration_date;
+    if (updates.file_path !== undefined) dbUpdates.file_path = updates.file_path;
+    if (updates.thumbnail_path !== undefined) dbUpdates.thumbnail_path = updates.thumbnail_path;
 
     const { data, error } = await supabase
       .from('documents')
@@ -218,11 +218,11 @@ function mapToDocumentType(data: any): DocumentType {
     name: data.name,
     description: data.description || '',
     category: data.category,
-    expirationDate: data.expiration_date || null,
-    filePath: data.file_path || '',
-    thumbnailPath: data.thumbnail_path || '',
-    userId: data.user_id || '',
-    createdAt: data.created_at,
-    updatedAt: data.updated_at
+    expiration_date: data.expiration_date || null,
+    file_path: data.file_path || '',
+    thumbnail_path: data.thumbnail_path || '',
+    user_id: data.user_id || '',
+    created_at: data.created_at,
+    updated_at: data.updated_at
   };
 }

@@ -9,14 +9,15 @@ export type DocumentCategory = 'identity' | 'health' | 'vehicle' | 'contract' | 
 
 export type DocumentType = {
   id: string;
-  userId: string;
+  user_id: string;
   name: string;
-  category: DocumentCategory;
-  filePath: string;
-  expirationDate?: Date;
-  createdAt: Date;
-  description?: string;
-  thumbnailPath?: string;
+  category: string;
+  file_path: string | null;
+  expiration_date: string | null;
+  created_at: string;
+  updated_at: string;
+  description: string | null;
+  thumbnail_path: string | null;
 };
 
 export type NotificationType = {

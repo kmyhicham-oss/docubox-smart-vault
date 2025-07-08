@@ -63,7 +63,7 @@ export function useDocumentDetail() {
   };
 
   const getImageUrl = async () => {
-    if (!document || !document.thumbnailPath) {
+    if (!document || !document.thumbnail_path) {
       switch(document?.category) {
         case "identity": return "/images/id-preview.png";
         case "health": return "/images/health-preview.png";
@@ -77,7 +77,7 @@ export function useDocumentDetail() {
     try {
       const { data, error } = await supabase.storage
         .from('documents')
-        .createSignedUrl(document.thumbnailPath, 60);
+        .createSignedUrl(document.thumbnail_path, 60);
         
       if (error || !data) {
         throw error;

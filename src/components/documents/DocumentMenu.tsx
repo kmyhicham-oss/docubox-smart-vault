@@ -81,16 +81,16 @@ export function DocumentMenu({ documentId }: DocumentMenuProps) {
     try {
       // Simulate download
       const url = URL.createObjectURL(new Blob([`Document content for ${document.name}`], { type: 'application/pdf' }));
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = document.name + '.pdf';
-      document.body.appendChild(a);
+      window.document.body.appendChild(a);
       a.click();
       
       // Cleanup
       URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
       
       // Save downloaded status
       const savedFiles = localStorage.getItem('downloadedDocuments') || '[]';

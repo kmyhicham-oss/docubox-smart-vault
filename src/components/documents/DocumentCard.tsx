@@ -20,7 +20,7 @@ interface DocumentCardProps {
 }
 
 export function DocumentCard({ document }: DocumentCardProps) {
-  const { id, name, category, expirationDate, createdAt, thumbnailPath } = document;
+  const { id, name, category, expiration_date, created_at, thumbnail_path } = document;
   const [isDownloaded, setIsDownloaded] = useState(false);
   
   useEffect(() => {
@@ -32,9 +32,9 @@ export function DocumentCard({ document }: DocumentCardProps) {
     }
   }, [id]);
 
-  const isExpiringSoon = expirationDate && 
-    expirationDate > new Date() && 
-    expirationDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const isExpiringSoon = expiration_date && 
+    new Date(expiration_date) > new Date() && 
+    new Date(expiration_date) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
   // Get appropriate image based on category when no thumbnailPath is available
   const getDefaultThumbnail = () => {
@@ -48,8 +48,8 @@ export function DocumentCard({ document }: DocumentCardProps) {
     }
   };
 
-  // Use thumbnailPath if it's a valid path, otherwise use default
-  const thumbnailSrc = thumbnailPath || getDefaultThumbnail();
+  // Use thumbnail_path if it's a valid path, otherwise use default
+  const thumbnailSrc = thumbnail_path || getDefaultThumbnail();
 
   return (
     <Card className="overflow-hidden">
@@ -86,15 +86,15 @@ export function DocumentCard({ document }: DocumentCardProps) {
           </h3>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <CategoryTag category={category} />
+          <CategoryTag category={category as any} />
           <span className="text-xs text-muted-foreground">
-            {format(new Date(createdAt), "dd MMM yyyy", { locale: fr })}
+            {format(new Date(created_at), "dd MMM yyyy", { locale: fr })}
           </span>
         </div>
-        {expirationDate && (
+        {expiration_date && (
           <div className={`mt-2 text-xs ${isExpiringSoon ? "text-docubox-identity" : "text-muted-foreground"}`}>
             {isExpiringSoon ? "⚠️ " : ""}
-            Expire: {format(new Date(expirationDate), "dd MMM yyyy", { locale: fr })}
+            Expire: {format(new Date(expiration_date), "dd MMM yyyy", { locale: fr })}
           </div>
         )}
       </CardContent>

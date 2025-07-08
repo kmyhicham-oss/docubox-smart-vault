@@ -50,7 +50,12 @@ export function DocumentScanner() {
       const result = await addDocument({
         name: `Document scanné le ${new Date().toLocaleDateString()}`,
         category: "other",
-        file: capturedFile
+        description: null,
+        user_id: '',
+        file_path: '',
+        thumbnail_path: '',
+        expiration_date: null,
+        updated_at: new Date().toISOString()
       });
       
       if (result.success) {
@@ -60,7 +65,7 @@ export function DocumentScanner() {
         });
         
         // Rediriger vers le document nouvellement créé
-        navigate(`/documents/${result.documentId}`);
+        navigate(`/documents/${result.document.id}`);
       } else {
         throw result.error;
       }
