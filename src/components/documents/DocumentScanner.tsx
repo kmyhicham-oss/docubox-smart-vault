@@ -5,21 +5,28 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { Camera, Upload, X } from "lucide-react";
+import { Camera, Upload, X, Brain } from "lucide-react";
 import { addDocument } from "@/services/documentService";
 import { useNavigate } from "react-router-dom";
+import { useDocumentAnalysis } from "@/hooks/useDocumentAnalysis";
 
 export function DocumentScanner() {
   const [scanMode, setScanMode] = useState<"camera" | "upload">("upload");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [capturedFile, setCapturedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [documentAnalysis, setDocumentAnalysis] = useState<{
+    name: string;
+    category: string;
+    description: string;
+  } | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { analyzeDocument } = useDocumentAnalysis();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
@@ -30,6 +37,42 @@ export function DocumentScanner() {
       setCapturedImage(reader.result as string);
     };
     reader.readAsDataURL(file);
+
+    // Analyser automatiquement si c'est une image
+    if (file.type.startsWith('image/')) {
+      await handleAnalyzeDocument(file);
+    }
+  };
+
+  const handleAnalyzeDocument = async (file: File) => {
+    try {
+      toast({
+        title: "Analyse en cours...",
+        description: "Extraction du texte et classification automatique",
+      });
+
+      const analysis = await analyzeDocument(file);
+      
+      setDocumentAnalysis({
+        name: analysis.suggestedName,
+        category: analysis.suggestedCategory,
+        description: analysis.text.length > 20 
+          ? `Texte extrait: ${analysis.text.substring(0, 200)}${analysis.text.length > 200 ? "..." : ""}`
+          : ""
+      });
+
+      toast({
+        title: "Analyse terminée",
+        description: `Document classé comme "${analysis.suggestedCategory}" avec ${Math.round(analysis.confidence)}% de confiance`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'analyse:", error);
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'analyser le document automatiquement",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleCameraCapture = () => {
@@ -46,11 +89,16 @@ export function DocumentScanner() {
     setIsProcessing(true);
     
     try {
+      // Utiliser l'analyse automatique si disponible, sinon valeurs par défaut
+      const documentName = documentAnalysis?.name || `Document scanné le ${new Date().toLocaleDateString()}`;
+      const documentCategory = documentAnalysis?.category || "other";
+      const documentDescription = documentAnalysis?.description || null;
+
       // Ajouter le document à Supabase
       const result = await addDocument({
-        name: `Document scanné le ${new Date().toLocaleDateString()}`,
-        category: "other",
-        description: null,
+        name: documentName,
+        category: documentCategory,
+        description: documentDescription,
         user_id: '',
         file_path: '',
         thumbnail_path: '',
@@ -84,6 +132,7 @@ export function DocumentScanner() {
   const handleReset = () => {
     setCapturedImage(null);
     setCapturedFile(null);
+    setDocumentAnalysis(null);
   };
 
   return (
@@ -187,7 +236,32 @@ export function DocumentScanner() {
       </CardContent>
       
       {capturedImage && (
-        <CardFooter>
+        <CardFooter className="flex flex-col space-y-4">
+          {documentAnalysis && (
+            <div className="w-full p-3 bg-green-50 border border-green-200 rounded-md text-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Brain size={16} className="text-green-600" />
+                <span className="font-medium text-green-800">Analyse automatique</span>
+              </div>
+              <p><strong>Nom:</strong> {documentAnalysis.name}</p>
+              <p><strong>Catégorie:</strong> {documentAnalysis.category}</p>
+              {documentAnalysis.description && (
+                <p><strong>Description:</strong> {documentAnalysis.description}</p>
+              )}
+            </div>
+          )}
+          
+          {capturedFile && !documentAnalysis && capturedFile.type.startsWith('image/') && (
+            <Button
+              variant="outline"
+              onClick={() => handleAnalyzeDocument(capturedFile)}
+              className="w-full flex items-center gap-2"
+            >
+              <Brain size={16} />
+              Analyser le document
+            </Button>
+          )}
+          
           <Button 
             className="w-full" 
             onClick={handleProcessDocument}

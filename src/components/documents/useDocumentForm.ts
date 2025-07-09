@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { addDocument } from "@/services/documentService";
+import { useDocumentAnalysis } from "@/hooks/useDocumentAnalysis";
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -22,6 +23,7 @@ export function useDocumentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { analyzeDocument } = useDocumentAnalysis();
   
   const form = useForm<DocumentFormValues>({
     resolver: zodResolver(formSchema),
@@ -31,6 +33,42 @@ export function useDocumentForm() {
       description: "",
     },
   });
+
+  const analyzeAndSuggest = async (file: File) => {
+    try {
+      toast({
+        title: "Analyse en cours...",
+        description: "Extraction du texte et classification automatique",
+      });
+
+      const analysis = await analyzeDocument(file);
+      
+      // Mettre à jour le formulaire avec les suggestions
+      form.setValue("name", analysis.suggestedName);
+      form.setValue("category", analysis.suggestedCategory);
+      
+      // Ajouter le texte extrait comme description si disponible
+      if (analysis.text && analysis.text.length > 20) {
+        const extractedPreview = analysis.text.substring(0, 200) + (analysis.text.length > 200 ? "..." : "");
+        form.setValue("description", `Texte extrait: ${extractedPreview}`);
+      }
+
+      toast({
+        title: "Analyse terminée",
+        description: `Document classé comme "${analysis.suggestedCategory}" avec ${Math.round(analysis.confidence)}% de confiance`,
+      });
+
+      return analysis;
+    } catch (error) {
+      console.error("Erreur lors de l'analyse:", error);
+      toast({
+        title: "Erreur d'analyse",
+        description: "Impossible d'analyser le document. Veuillez remplir manuellement.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
 
   const handleSubmit = async (values: DocumentFormValues, file: File | null) => {
     if (!file) {
@@ -82,5 +120,6 @@ export function useDocumentForm() {
     form,
     isSubmitting,
     handleSubmit,
+    analyzeAndSuggest,
   };
 }

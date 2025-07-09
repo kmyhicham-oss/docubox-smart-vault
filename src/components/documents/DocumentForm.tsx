@@ -24,7 +24,17 @@ import { DocumentFormValues, useDocumentForm } from "./useDocumentForm";
 
 export function DocumentForm() {
   const [file, setFile] = useState<File | null>(null);
-  const { form, isSubmitting, handleSubmit } = useDocumentForm();
+  const { form, isSubmitting, handleSubmit, analyzeAndSuggest } = useDocumentForm();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleAnalyze = async (file: File) => {
+    setIsAnalyzing(true);
+    try {
+      await analyzeAndSuggest(file);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -32,6 +42,8 @@ export function DocumentForm() {
         <FileUploader 
           file={file} 
           onFileChange={setFile}
+          onAnalyze={handleAnalyze}
+          isAnalyzing={isAnalyzing}
         />
 
         <div className="grid gap-6">
