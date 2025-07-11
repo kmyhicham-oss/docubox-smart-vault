@@ -15,6 +15,7 @@ const formSchema = z.object({
   expirationDate: z.date().optional(),
   description: z.string().optional(),
   file: z.any().optional(),
+  file_path: z.string().optional(),
 });
 
 export type DocumentFormValues = z.infer<typeof formSchema>;
@@ -71,10 +72,10 @@ export function useDocumentForm() {
   };
 
   const handleSubmit = async (values: DocumentFormValues, file: File | null) => {
-    if (!file) {
+    if (!file && !values.file_path) {
       toast({
         title: "Fichier requis",
-        description: "Veuillez sélectionner un fichier",
+        description: "Veuillez sélectionner un fichier ou importer depuis Google Drive",
         variant: "destructive",
       });
       return;
@@ -90,10 +91,10 @@ export function useDocumentForm() {
         expiration_date: values.expirationDate ? values.expirationDate.toISOString() : null,
         description: values.description,
         user_id: '', // This should be set by the addDocument function
-        file_path: '',
+        file_path: values.file_path || '',
         thumbnail_path: '',
         updated_at: new Date().toISOString()
-      });
+      }, file);
 
       if (result.success) {
         toast({

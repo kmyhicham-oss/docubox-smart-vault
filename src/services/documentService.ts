@@ -61,15 +61,36 @@ export async function searchDocuments(query: string) {
   }
 }
 
-export async function addDocument(document: Omit<DocumentType, 'id' | 'created_at'>) {
+export async function addDocument(document: Omit<DocumentType, 'id' | 'created_at'>, file?: File | null) {
   try {
+    let filePath = document.file_path || '';
+    
+    // Upload file to Supabase storage if provided
+    if (file) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+      
+      const timestamp = Date.now();
+      const storagePath = `${user.id}/${timestamp}-${file.name}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(storagePath, file);
+
+      if (uploadError) {
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+      
+      filePath = storagePath;
+    }
+
     // Convert to database format expected by Supabase
     const dbDocument = {
       name: document.name,
       description: document.description || '',
       category: document.category,
       expiration_date: document.expiration_date || null,
-      file_path: document.file_path || '',
+      file_path: filePath,
       thumbnail_path: document.thumbnail_path || '',
       user_id: document.user_id || ''
     };

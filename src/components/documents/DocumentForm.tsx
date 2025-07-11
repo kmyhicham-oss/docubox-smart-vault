@@ -21,6 +21,8 @@ import { FileUploader } from "./FileUploader";
 import { CategorySelector } from "./CategorySelector";
 import { ExpirationDatePicker } from "./ExpirationDatePicker";
 import { DocumentFormValues, useDocumentForm } from "./useDocumentForm";
+import { GoogleDriveImport } from "./GoogleDriveImport";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function DocumentForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -39,12 +41,34 @@ export function DocumentForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(values => handleSubmit(values, file))} className="space-y-6">
-        <FileUploader 
-          file={file} 
-          onFileChange={setFile}
-          onAnalyze={handleAnalyze}
-          isAnalyzing={isAnalyzing}
-        />
+        <Tabs defaultValue="upload" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload">Télécharger un fichier</TabsTrigger>
+            <TabsTrigger value="drive">Google Drive</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upload" className="space-y-4">
+            <FileUploader 
+              file={file} 
+              onFileChange={setFile}
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+            />
+          </TabsContent>
+
+          <TabsContent value="drive" className="space-y-4">
+            <GoogleDriveImport 
+              onFileImported={(fileData) => {
+                form.setValue("file_path", fileData.filePath);
+                form.setValue("name", fileData.name);
+                form.setValue("category", fileData.category);
+                if (fileData.extractedText) {
+                  form.setValue("description", fileData.extractedText);
+                }
+              }}
+            />
+          </TabsContent>
+        </Tabs>
 
         <div className="grid gap-6">
           <FormField

@@ -14,6 +14,7 @@ import SignUp from "./pages/SignUp";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import PaymentPlans from "./pages/PaymentPlans";
+import GoogleCallback from "./pages/GoogleCallback";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
@@ -47,6 +48,7 @@ const AppRoutes = () => {
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/" /> : <SignUp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/login" element={<Navigate to="/signin" />} /> {/* Redirect old route to new */}
+      <Route path="/auth/google/callback" element={<GoogleCallback />} />
       
       {/* Protected Routes */}
       <Route path="/" element={<ProtectedRoute element={<Index />} />} />
