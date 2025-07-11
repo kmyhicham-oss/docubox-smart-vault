@@ -16,7 +16,7 @@ export default function BottomNav() {
     { 
       path: '/', 
       icon: <Home className="h-6 w-6" />, 
-      label: t('navigation.home'), 
+      label: "Home", 
       active: isActive('/') 
     },
     { 
