@@ -105,6 +105,34 @@
     @apply bg-docubox-contract/10 text-docubox-contract border-docubox-contract/30;
   }
 
+  .category-finance {
+    @apply bg-docubox-finance/10 text-docubox-finance border-docubox-finance/30;
+  }
+
+  .category-realestate {
+    @apply bg-docubox-realestate/10 text-docubox-realestate border-docubox-realestate/30;
+  }
+
+  .category-work {
+    @apply bg-docubox-work/10 text-docubox-work border-docubox-work/30;
+  }
+
+  .category-education {
+    @apply bg-docubox-education/10 text-docubox-education border-docubox-education/30;
+  }
+
+  .category-insurance {
+    @apply bg-docubox-insurance/10 text-docubox-insurance border-docubox-insurance/30;
+  }
+
+  .category-transport {
+    @apply bg-docubox-transport/10 text-docubox-transport border-docubox-transport/30;
+  }
+
+  .category-utilities {
+    @apply bg-docubox-utilities/10 text-docubox-utilities border-docubox-utilities/30;
+  }
+
   .category-other {
     @apply bg-docubox-other/10 text-docubox-other border-docubox-other/30;
   }
