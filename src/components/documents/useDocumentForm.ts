@@ -11,7 +11,7 @@ import { useDocumentAnalysis } from "@/hooks/useDocumentAnalysis";
 
 const formSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-  category: z.enum(["identity", "health", "vehicle", "contract", "other"] as const),
+  category: z.string().min(1, "Catégorie requise"),
   expirationDate: z.date().optional(),
   description: z.string().optional(),
   file: z.any().optional(),

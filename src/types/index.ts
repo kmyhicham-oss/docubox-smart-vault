@@ -1,11 +1,24 @@
-
 export type UserType = {
   id: string;
   email: string;
   createdAt: Date;
 };
 
-export type DocumentCategory = 'identity' | 'health' | 'vehicle' | 'contract' | 'other';
+// 10 canonical categories + legacy aliases (vehicle, contract) kept for backward compat
+export type DocumentCategory =
+  | "identity"
+  | "health"
+  | "finance"
+  | "realestate"
+  | "work"
+  | "education"
+  | "insurance"
+  | "transport"
+  | "utilities"
+  | "other"
+  // legacy
+  | "vehicle"
+  | "contract";
 
 export type DocumentType = {
   id: string;
@@ -24,11 +37,11 @@ export type NotificationType = {
   id: string;
   documentId: string;
   scheduledDate: Date;
-  status: 'pending' | 'sent';
+  status: "pending" | "sent";
 };
 
 export interface CategoryInfo {
-  id: DocumentCategory | 'all';
+  id: DocumentCategory | "all";
   label: string;
   icon: React.ComponentType<any> | string;
   color: string;
