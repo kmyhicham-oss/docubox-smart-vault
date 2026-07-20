@@ -33,7 +33,7 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
 }) => {
   const [size, setSize] = useState({ width: initialWidth, height: initialHeight });
   const [position, setPosition] = useState({ x: initialX, y: initialY });
-  const nodeRef = useRef(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
 
   const handleResize = (event: any, { size }: any) => {
     setSize({ width: size.width, height: size.height });
@@ -47,8 +47,10 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
     return <div className={className}>{children}</div>;
   }
 
+  const AnyDraggable = Draggable as any;
+
   return (
-    <Draggable
+    <AnyDraggable
       nodeRef={nodeRef}
       position={position}
       onDrag={handleDrag}
@@ -85,6 +87,6 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
           </div>
         </Resizable>
       </div>
-    </Draggable>
+    </AnyDraggable>
   );
 };
