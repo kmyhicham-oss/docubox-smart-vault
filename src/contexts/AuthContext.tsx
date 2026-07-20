@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "./LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { User, Session } from '@supabase/supabase-js';
 
 type AuthUser = {
@@ -118,17 +119,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          scopes: 'https://www.googleapis.com/auth/drive.readonly',
-          redirectTo: `${window.location.origin}/`
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+        extraParams: {
+          scope: "https://www.googleapis.com/auth/drive.readonly"
         }
       });
       
-      if (error) {
-        throw error;
+      if ("error" in result && result.error) {
+        throw result.error;
       }
+      
+      if ("redirected" in result && result.redirected) {
+        return;
+      }
+      
+      toast({
+        title: t("auth.login.success"),
+        description: t("auth.login.welcomeMessage")
+      });
+      
+      navigate("/");
     } catch (error: any) {
       toast({
         title: t("auth.errors.loginFailed"),
@@ -140,17 +151,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithMicrosoft = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'azure',
-        options: {
-          scopes: 'https://graph.microsoft.com/Files.Read',
-          redirectTo: `${window.location.origin}/`
+      const result = await lovable.auth.signInWithOAuth("microsoft", {
+        redirect_uri: window.location.origin,
+        extraParams: {
+          scope: "https://graph.microsoft.com/Files.Read"
         }
       });
       
-      if (error) {
-        throw error;
+      if ("error" in result && result.error) {
+        throw result.error;
       }
+      
+      if ("redirected" in result && result.redirected) {
+        return;
+      }
+      
+      toast({
+        title: t("auth.login.success"),
+        description: t("auth.login.welcomeMessage")
+      });
+      
+      navigate("/");
     } catch (error: any) {
       toast({
         title: t("auth.errors.loginFailed"),

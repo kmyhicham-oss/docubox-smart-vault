@@ -194,10 +194,6 @@ const LoginForm = () => {
           {isLoading ? t("auth.login.processing") : t("auth.login.action")}
         </Button>
         
-        {/* Demo credentials hint */}
-        <div className="text-xs text-gray-500 text-center">
-          <p>Démo: utilisez user@example.com / password123</p>
-        </div>
       </form>
 
       {/* Forgot Password Dialog */}
