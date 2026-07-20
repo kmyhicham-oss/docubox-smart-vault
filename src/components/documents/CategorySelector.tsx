@@ -6,8 +6,8 @@ import { CATEGORIES } from "@/utils/categories";
 import { cn } from "@/lib/utils";
 
 interface CategorySelectorProps {
-  value: DocumentCategory;
-  onChange: (value: DocumentCategory) => void;
+  value: string;
+  onChange: (value: string) => void;
 }
 
 export function CategorySelector({ value, onChange }: CategorySelectorProps) {
