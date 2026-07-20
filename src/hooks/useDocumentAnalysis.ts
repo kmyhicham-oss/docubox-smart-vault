@@ -15,66 +15,41 @@ export function useDocumentAnalysis() {
     ocrResult: null,
     classification: null,
     isAnalyzing: false,
-    error: null
+    error: null,
   });
 
-  const analyzeDocument = async (file: File): Promise<{
+  const analyzeDocument = async (
+    file: File
+  ): Promise<{
     text: string;
     suggestedCategory: DocumentCategory;
     suggestedName: string;
     confidence: number;
+    extractedDate?: string;
   }> => {
-    setAnalysis(prev => ({
-      ...prev,
-      isAnalyzing: true,
-      error: null
-    }));
-
+    setAnalysis((p) => ({ ...p, isAnalyzing: true, error: null }));
     try {
-      // Extraire le texte avec OCR
       const ocrResult = await extractTextFromImage(file);
-      
-      // Classifier le document
       const classification = classifyDocument(ocrResult.text);
-
-      setAnalysis({
-        ocrResult,
-        classification,
-        isAnalyzing: false,
-        error: null
-      });
-
+      setAnalysis({ ocrResult, classification, isAnalyzing: false, error: null });
       return {
         text: ocrResult.text,
         suggestedCategory: classification.category,
-        suggestedName: classification.suggestedName || `Document - ${new Date().toLocaleDateString('fr-FR')}`,
-        confidence: classification.confidence
+        suggestedName:
+          classification.suggestedName ||
+          `Document - ${new Date().toLocaleDateString('fr-FR')}`,
+        confidence: classification.confidence,
+        extractedDate: classification.extractedDate,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur lors de l\'analyse';
-      
-      setAnalysis(prev => ({
-        ...prev,
-        isAnalyzing: false,
-        error: errorMessage
-      }));
-
+      const msg = error instanceof Error ? error.message : "Erreur lors de l'analyse";
+      setAnalysis((p) => ({ ...p, isAnalyzing: false, error: msg }));
       throw error;
     }
   };
 
-  const resetAnalysis = () => {
-    setAnalysis({
-      ocrResult: null,
-      classification: null,
-      isAnalyzing: false,
-      error: null
-    });
-  };
+  const resetAnalysis = () =>
+    setAnalysis({ ocrResult: null, classification: null, isAnalyzing: false, error: null });
 
-  return {
-    analysis,
-    analyzeDocument,
-    resetAnalysis
-  };
+  return { analysis, analyzeDocument, resetAnalysis };
 }
