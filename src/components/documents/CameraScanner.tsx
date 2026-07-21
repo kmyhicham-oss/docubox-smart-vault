@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import jscanify from "jscanify";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Camera, X, Check, ImagePlus, RotateCcw, Loader2 } from "lucide-react";
+
 
 interface CameraScannerProps {
   onPagesCaptured: (pages: string[]) => void; // data URLs (JPEG)
@@ -69,10 +69,13 @@ export function CameraScanner({ onPagesCaptured, onClose }: CameraScannerProps) 
 
         try {
           await loadOpenCv();
-          scannerRef.current = new (jscanify as any)();
+          const jscanifyMod: any = await import("jscanify");
+          const JScanify = jscanifyMod.default || jscanifyMod;
+          scannerRef.current = new JScanify();
         } catch (e) {
           console.warn("OpenCV indisponible, capture sans détection", e);
         }
+
         if (!cancelled) {
           setReady(true);
           tick();
