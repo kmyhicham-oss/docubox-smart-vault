@@ -69,10 +69,13 @@ export function CameraScanner({ onPagesCaptured, onClose }: CameraScannerProps) 
 
         try {
           await loadOpenCv();
-          scannerRef.current = new (jscanify as any)();
+          const jscanifyMod: any = await import("jscanify");
+          const JScanify = jscanifyMod.default || jscanifyMod;
+          scannerRef.current = new JScanify();
         } catch (e) {
           console.warn("OpenCV indisponible, capture sans détection", e);
         }
+
         if (!cancelled) {
           setReady(true);
           tick();
