@@ -1,1 +1,7 @@
 project_id = "ollzevrabkyykklhebkg"
+
+[functions.google-oauth]
+verify_jwt = true
+
+[functions.google-drive-import]
+verify_jwt = true
