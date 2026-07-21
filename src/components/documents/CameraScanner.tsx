@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import jscanify from "jscanify";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Camera, X, Check, ImagePlus, RotateCcw, Loader2 } from "lucide-react";
+
 
 interface CameraScannerProps {
   onPagesCaptured: (pages: string[]) => void; // data URLs (JPEG)
